@@ -4,8 +4,8 @@
 CSqlFramework::CSqlFramework()
 {
 	//Initialize  variables
-	InitHandles();
-	pBinding = new Binding;
+
+	
 }
 
 void CSqlFramework::InitHandles(void)
@@ -16,11 +16,12 @@ void CSqlFramework::InitHandles(void)
 	SQLSetEnvAttr(hEnv, SQL_ATTR_ODBC_VERSION, (void*)(SQL_OV_ODBC3), SQL_IS_INTEGER);
 	//Allocate a connection handle
 	SQLAllocHandle(SQL_HANDLE_DBC, hEnv, &hDbc);
-
+	
 }
 //Connection to database
 BOOL CSqlFramework::OpenConnection(SQLTCHAR* dataSourceName, SQLTCHAR* username, SQLTCHAR* pass) 
 {
+	InitHandles();
 	//При попытке подключения к базе данных изменим вид курсора
 	HCURSOR hCursor = LoadCursor(NULL, IDC_WAIT);
 	SetCursor(hCursor);
@@ -87,18 +88,23 @@ BOOL CSqlFramework::CreateConsole(void)
 SQLHANDLE CSqlFramework::SendQueryToDatabase(SQLWCHAR* sqlCommand)
 {
 	SQLRETURN retCode;
-	SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt);
-	size_t len = lstrlen(sqlCommand) + 1;
+	retCode = SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt);
+	if (retCode == SQL_ERROR)
+		extract_error(TEXT("AllocHandle error(hstmt)"), hDbc, SQL_HANDLE_DBC);
+	size_t len = _tcslen(sqlCommand) + 1;
 	retCode = SQLExecDirect(hStmt, sqlCommand, len);
+	if (retCode == SQL_ERROR)
+		extract_error(TEXT("ExecDirect error"), hStmt, SQL_HANDLE_STMT);
+	pBinding = new Binding;
 	pBinding->AllocateBindings(hStmt);
 	return hStmt;
 }
 
 
-void CSqlFramework::extract_error(char *fn, SQLHANDLE handle, SQLSMALLINT type)
+void CSqlFramework::extract_error(TCHAR *fn, SQLHANDLE handle, SQLSMALLINT type)
 {
 	CreateConsole();
-	SQLINTEGER   i = 0;
+	SQLSMALLINT  i = 0;
 	SQLINTEGER   native;
 	SQLTCHAR     state[7];
 	SQLTCHAR     text[256];
@@ -119,4 +125,57 @@ void CSqlFramework::extract_error(char *fn, SQLHANDLE handle, SQLSMALLINT type)
 Binding* CSqlFramework::GetBinding(void)
 {
 	return pBinding;
+}
+
+void CSqlFramework::FreeBinding(SQLHANDLE hsTmtHandle)
+{
+	SQLRETURN retCode;
+	retCode = SQLFreeStmt(hsTmtHandle, SQL_CLOSE);
+	retCode = SQLFreeStmt(hsTmtHandle, SQL_UNBIND);
+	retCode = SQLFreeStmt(hsTmtHandle, SQL_RESET_PARAMS);
+
+	retCode = SQLFreeHandle(SQL_HANDLE_STMT, hStmt);
+	pBinding->FreeBinding();
+	delete pBinding;
+	pBinding = nullptr;
+}
+
+SQLHANDLE CSqlFramework::ExecutePrepearedQuery(SQLTCHAR* sqlCommand, SQLTCHAR** parametrArray)
+{
+	SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt);
+	SQLRETURN retcode = SQLPrepare(hStmt, sqlCommand, SQL_NTS);
+	if (retcode == SQL_ERROR)
+		extract_error(L"Ошибка подготовки запроса", hStmt, SQL_HANDLE_STMT);
+	SQLSMALLINT   DataType, DecimalDigits, Nullable;
+	SQLUINTEGER   ParamSize;
+	SQLINTEGER iNts = SQL_NTS;
+	SQLSMALLINT numParams;
+	SQLNumParams(hStmt, &numParams);
+
+	if (numParams)
+	{
+		for (int i = 0; i < numParams; i++)
+		{
+			SQLDescribeParam(hStmt, i + 1, &DataType, &ParamSize, &DecimalDigits, &Nullable);
+			SQLBindParameter(hStmt, i + 1, SQL_PARAM_INPUT, SQL_C_TCHAR, DataType, ParamSize,
+				DecimalDigits, parametrArray[i], (ParamSize)*sizeof(SQLTCHAR),
+				&iNts);
+		}
+
+	}
+	retcode = SQLExecute(hStmt);
+	if (retcode == SQL_ERROR)
+		extract_error(L"Ошибка выполнения запроса", hStmt, SQL_HANDLE_STMT);
+
+
+	pBinding = new Binding;
+	pBinding->AllocateBindings(hStmt);
+	return hStmt;
+	
+}
+
+
+SQLHANDLE CSqlFramework::GetStatementHandle(void)
+{
+	return &hStmt;
 }

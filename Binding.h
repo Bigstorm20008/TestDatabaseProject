@@ -14,7 +14,7 @@ private:
 	SQLLEN descLen;
 	SQLLEN StrLen_or_Ind;
 	Binding* nextBinding;
-
+	SQLTCHAR columnName[250];
 	
 
 	
@@ -24,6 +24,9 @@ public:
 
 	void AllocateBindings(SQLHANDLE hStmthandle);
 	TCHAR* GetDescription(void);
+	TCHAR* GetColumnName(void);
+	Binding* GetNextBinding(void);
+	void FreeBinding(void);
 	Binding();
 	~Binding();
 };

@@ -5,12 +5,8 @@
 #include "MyButton.h"
 #include "SqlFramework.h"
 #include "AutorisationClass.h"
+#include "Constants.h"
 
-#define ID_USER_NAME 1000
-#define ID_PASS 1001
-#define ID_OKBTN 1002
-#define ID_CANCELBTN 1003
-#define ID_MAIN_PANEL 1004
 
 //Класс для авторизации в программе(используется для формирования интерфейса окна и проверки введенных данных)
 class AutentificationClass

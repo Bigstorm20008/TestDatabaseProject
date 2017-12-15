@@ -1,22 +1,28 @@
 //Подключаем библиотеку Windows
 #include <Windows.h>
-#include "ControlPanel.h"
 #include "AutentificationClass.h"
+#include <vld.h>
+#include "Constants.h"
+
+#pragma comment(linker,"\"/manifestdependency:type='win32' \
+name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
+processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
 
-#define controlPanelWnd 1000
-#define autorizationWnd 1001
+
 //Прототип Функции для обработки сообщений
 LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 CSqlFramework* sqlODBC = nullptr;
+//MyListView* listview = nullptr;
+LPTSTR szClassName = L"MainWindowApp";               //Переменная с именем класса главного окна
+LPTSTR szWindowName = L"Главное окно приложения";    //Переменная с названием главного окна
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
 
 
-	LPWSTR szClassName = L"MainWindowApp";               //Переменная с именем класса окна
-	LPWSTR szWindowName = L"Главное окно приложения";    //Переменная с названием окна
+	
 
 	//Заполняем структуру, необходимую для регистрации окна в Windows
 	WNDCLASSEX wcex;
@@ -83,13 +89,44 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	switch (msg)
 	{
 	case WM_CREATE:
-	{
-		sqlODBC = new CSqlFramework;               //Создади указатель на класс для работы с баззой данных
-		AutentificationClass autentificationWindow(hWnd, autorizationWnd);
+	{	
+		sqlODBC = new CSqlFramework;               //Создади указатель на класс для работы с базой данных
+		AutentificationClass autentificationWindow(hWnd, autorizationWnd);		
 		break;
 	}
 	case WM_SIZE:
 	{
+		break;
+	}
+	case WM_COMMAND:
+	{
+		if (LOWORD(wParam) == ID_ADD_NEW_CLIENT_BTN)
+		{
+			HWND controlPanel = GetDlgItem(hWnd, ID_CASHIER_PANEL);
+			SendMessage(controlPanel, WM_COMMAND, ID_ADD_NEW_CLIENT_BTN, 0);
+		}
+   		//if (LOWORD(wParam) == ID_IMAGE_WND)
+			//MessageBox(NULL, L"Статик", L"Info", MB_OK);
+		break;
+	}
+	case WM_NOTIFY:
+	{
+		switch (((LPNMHDR)lParam)->code)
+		{
+		case NM_CLICK:
+		case NM_RCLICK:
+		{
+			if (((LPNMHDR)lParam)->idFrom == ID_LIST_FOR_CLIENTVIEW)
+			{
+				HWND controlPanel = GetDlgItem(hWnd, ID_CASHIER_PANEL);
+				HWND listWnd = GetDlgItem(hWnd, ID_LIST_FOR_CLIENTVIEW);
+				SendMessage(controlPanel, WM_LISTVIEW_CLICKED, 0, 0);
+			}
+			break;
+		}
+		default:
+			break;
+		}
 		break;
 	}
     // реакция на сообщение о прекращении работы программы
@@ -97,6 +134,7 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		sqlODBC->CloseConnection();
 		delete sqlODBC;
 		sqlODBC = nullptr;
+		
 		PostQuitMessage(0);  
 		break;
 	//Обработка всех остальных сообщений производится ОС по умолчанию

@@ -2,11 +2,10 @@
 
 #include <Windows.h>
 #include "MyButton.h"
+#include "MyUserInterface.h"
+#include "ClientView.h"
 
 
-#define ID_CASH_BTN 1010
-#define ID_CLIENT_BTN 1011
-#define ID_DILER_BTN 1012
 
 class ControlPanel
 {

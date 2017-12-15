@@ -80,19 +80,34 @@
   <ItemGroup>
     <ClCompile Include="AutentificationClass.cpp" />
     <ClCompile Include="AutorisationClass.cpp" />
+    <ClCompile Include="AuxiliaryWindows.cpp" />
     <ClCompile Include="Binding.cpp" />
+    <ClCompile Include="Client.cpp" />
+    <ClCompile Include="ClientImageWnd.cpp" />
+    <ClCompile Include="ClientList.cpp" />
+    <ClCompile Include="ClientView.cpp" />
+    <ClCompile Include="ClientViewButtons.cpp" />
     <ClCompile Include="ControlPanel.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MyButton.cpp" />
     <ClCompile Include="SqlFramework.cpp" />
+    <ClCompile Include="MyUserInterface.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AutentificationClass.h" />
     <ClInclude Include="AutorisationClass.h" />
+    <ClInclude Include="AuxiliaryWindows.h" />
     <ClInclude Include="Binding.h" />
+    <ClInclude Include="Client.h" />
+    <ClInclude Include="ClientImageWnd.h" />
+    <ClInclude Include="ClientList.h" />
+    <ClInclude Include="ClientView.h" />
+    <ClInclude Include="ClientViewButtons.h" />
+    <ClInclude Include="Constants.h" />
     <ClInclude Include="ControlPanel.h" />
     <ClInclude Include="MyButton.h" />
     <ClInclude Include="SqlFramework.h" />
+    <ClInclude Include="MyUserInterface.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

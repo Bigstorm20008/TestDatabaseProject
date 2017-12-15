@@ -46,6 +46,7 @@ void ControlPanel::CreateControlPanel(HWND hWnd, UINT identify)
 		                          HMENU(identify),
 		                          (HINSTANCE)GetWindowLong(NULL, GWLP_HINSTANCE),
 		                          NULL);
+
 }
 
 void ControlPanel::MoveMyWindow(HWND hWnd)
@@ -55,52 +56,79 @@ void ControlPanel::MoveMyWindow(HWND hWnd)
 }
 LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
+	static ClientView* clientView = nullptr;
 	switch (msg)
 	{
-	case WM_CREATE:
+	case WM_LISTVIEW_CLICKED:
 	{
-		int heightBtn = 40;
-		int widthBtn = 60;
-		int xPos = 5;
-		int yPos = 5;
-		MyButton btn1; 
-		btn1.CreateButton(hWnd,ID_CASH_BTN, L"Касса", xPos, yPos, widthBtn, heightBtn);
-		MyButton btn2;
-		btn2.CreateButton(hWnd, ID_CLIENT_BTN, L"Клиенты", xPos += (widthBtn + 5), yPos, widthBtn, heightBtn);
-		MyButton btn3;
-		btn3.CreateButton(hWnd, ID_DILER_BTN, L"Дилера", xPos += (widthBtn + 5), yPos, widthBtn, heightBtn);
+		clientView->getInfoAboutSelectedClient();
 		break;
 	}
 	case WM_COMMAND:
-	{
+	{		
 		switch (LOWORD(wParam))
-		{
-		case ID_CASH_BTN:
-		{
-			MessageBox(NULL, L"Касса", L"Информация", MB_OK);
-			break;
-		}
-		case ID_CLIENT_BTN:
-		{
-			MessageBox(NULL, L"Клиенты", L"Информация", MB_OK);
-			break;
-		}
-		case ID_DILER_BTN:
-		{
-			MessageBox(NULL, L"Дилера", L"Информация", MB_OK);
-			break;
-		}
+		{		
+			case ID_CASH_BTN:
+			{	
+				if (clientView)
+				{
+					clientView->DestroyAllClientViewWindow();
+					delete clientView;
+					clientView = nullptr;
+				}
+				break;
+			}
+			case ID_CLIENT_BTN:
+			{	
+				if (!clientView)
+				{
+					clientView = new ClientView;
+					clientView->CreateClientViewWindows();
+				}
+				else
+				{
+					clientView->destroyAuxiliaryWindows();
+					clientView->showAllWndForClientView();
+				}
+				break;
+			}
+			case ID_DILER_BTN:
+			{
+				if (clientView)
+				{
+					clientView->DestroyAllClientViewWindow();
+					delete clientView;
+					clientView = nullptr;
+				}
+				break;
+			}
+			case ID_ADD_NEW_CLIENT_BTN:
+			{
+				clientView->hideWndForClientView();
+				clientView->InitAddClientWnd();
+				break;
+			}
+
 			return 0;
 		}
 		break;
 	}
 	// реакция на сообщение о прекращении работы программы
 	case WM_DESTROY:
-		PostQuitMessage(0);
+	{
+		if (clientView)
+		{
+			delete clientView;
+			clientView = nullptr;
+		}
+		DestroyWindow(hWnd);
 		break;
+	}
 		//Обработка всех остальных сообщений производится ОС по умолчанию
 	default:
 		return DefWindowProc(hWnd, msg, wParam, lParam); //Просто вернем системе сообщение, которого нет в нашем обработчике
 	}
 	return 0;
 }
+
+

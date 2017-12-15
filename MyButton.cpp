@@ -61,34 +61,77 @@ LRESULT CALLBACK ButtonProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		break;
 	}
 	case WM_MOUSEMOVE:
-	{
+	{	
 		tme.cbSize = sizeof(tme);
 		tme.dwFlags = TME_LEAVE;
 		tme.dwHoverTime = HOVER_DEFAULT;
 		tme.hwndTrack = hWnd;
 		TrackMouseEvent(&tme);
-		RECT rc;
-		GetClientRect(hWnd, &rc);
-		hBrush = CreateSolidBrush(RGB(180, 174, 251));
-		InvalidateRect(hWnd, &rc, TRUE);
-		UpdateWindow(hWnd);
+		BOOL retCode = EnableWindow(hWnd, TRUE);
+		if (retCode)
+		{
+			EnableWindow(hWnd, FALSE);
+			RECT rc;
+			GetClientRect(hWnd, &rc);
+			hBrush = CreateSolidBrush(RGB(195, 195, 195));
+			InvalidateRect(hWnd, &rc, TRUE);
+			UpdateWindow(hWnd);
+		}
+		else
+		{ 
+			RECT rc;
+			GetClientRect(hWnd, &rc);
+			hBrush = CreateSolidBrush(RGB(180, 174, 251));
+			InvalidateRect(hWnd, &rc, TRUE);
+			UpdateWindow(hWnd);
+		}			
 		break;
 	}
 	case WM_MOUSELEAVE:
 	{
-		RECT rc;
-		GetClientRect(hWnd, &rc);
-		hBrush = CreateSolidBrush(RGB(220, 217, 253));
-		InvalidateRect(hWnd, &rc, TRUE);
-		UpdateWindow(hWnd);
+		BOOL retCode = EnableWindow(hWnd, TRUE);
+		if (retCode)
+		{
+			EnableWindow(hWnd, FALSE);
+			RECT rc;
+			GetClientRect(hWnd, &rc);
+			hBrush = CreateSolidBrush(RGB(195, 195, 195));
+			InvalidateRect(hWnd, &rc, TRUE);
+			UpdateWindow(hWnd);
+		}
+		else
+		{
+			RECT rc;
+			GetClientRect(hWnd, &rc);
+			hBrush = CreateSolidBrush(RGB(220, 217, 253));
+			InvalidateRect(hWnd, &rc, TRUE);
+			UpdateWindow(hWnd);
+		}
+				
 		break;
 	}
+	
 	case WM_LBUTTONDOWN:    //Обработка при нажатии левой кнопки мыши
 	{
 		UINT indentifer = GetWindowLong(hWnd, GWLP_ID);              //получим идентификатор кнопки
 		LONG hWndParent = GetWindowLong(hWnd, GWLP_HWNDPARENT);      //получим дескриптор родительского окна
 		SendMessage((HWND)hWndParent, WM_COMMAND, indentifer,0);     //отправим сообщение WM_COMMAND родительскому окну для последующей обработки
 		break;
+	}
+	case WM_ENABLE:
+	{
+		switch (wParam)
+		{
+		case TRUE:
+		{		
+			break;
+		}
+		case FALSE:
+		{
+			break;
+		}
+		break;
+		}
 	}
 	case WM_PAINT:         //Обработка при отрисовке окна
 	{

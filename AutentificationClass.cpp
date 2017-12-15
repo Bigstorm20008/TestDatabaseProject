@@ -58,8 +58,8 @@ LRESULT CALLBACK AutentificationProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
 	case WM_CREATE:
 	{
 		HWND hUserName, hPass;
-		LPWSTR strUser = L"Zhmenka";
-		LPWSTR strPass = L"47dim9175rty";
+		LPTSTR strUser = L"Zhmenka";
+		LPTSTR strPass = L"47dim9175rty";
 		hUserName = CreateWindow(L"EDIT",
 			                     strUser,
 								 WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP,
@@ -106,14 +106,14 @@ LRESULT CALLBACK AutentificationProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
 		case ID_OKBTN:    //Обработка при нажатии кнопки продолжить в окне авторизации
 		{
 			//Получим данные для проверки
-			HWND hWndUserName = GetDlgItem(hWnd, ID_USER_NAME);   //Получим дескриптор окна ввода имени пользователя
-			size_t len = GetWindowTextLength(hWndUserName) + 1;   //Получим длину, содержащегося в ней текста и сохраним в переменную 
-			TCHAR* userName = new TCHAR[len];                     //Выделим память для сохранения текста
-			GetWindowText(hWndUserName, userName, len);           //Получим сам текст и сохраним его в выделенной памяти
-			HWND hWndPass = GetDlgItem(hWnd, ID_PASS);            //Получим дескриптор окна ввода пароля
-			len = GetWindowTextLength(hWndPass) + 1;              //В ранее созданную переменную сохраним длину текста
-			TCHAR* pass = new TCHAR[len];                         //Выделим память для сохранения текста
-			GetWindowText(hWndPass, pass, len);                   //Получим сам текст и сохраним его в выделенной памяти
+			HWND hWndUserName = GetDlgItem(hWnd, ID_USER_NAME);               //Получим дескриптор окна ввода имени пользователя
+			size_t len = GetWindowTextLength(hWndUserName) ;                  //Получим длину, содержащегося в ней текста и сохраним в переменную 
+			TCHAR* userName = new TCHAR[len + sizeof(TCHAR)];                                 //Выделим память для сохранения текста
+			GetWindowText(hWndUserName, userName, len + sizeof(TCHAR));       //Получим сам текст и сохраним его в выделенной памяти
+			HWND hWndPass = GetDlgItem(hWnd, ID_PASS);                        //Получим дескриптор окна ввода пароля
+			len = GetWindowTextLength(hWndPass);                              //В ранее созданную переменную сохраним длину текста
+			TCHAR* pass = new TCHAR[len + sizeof(TCHAR)];                     //Выделим память для сохранения текста
+			GetWindowText(hWndPass, pass, len + sizeof(TCHAR));                               //Получим сам текст и сохраним его в выделенной памяти
 			
 			//Подключимся к базе данных.....
 			extern CSqlFramework* sqlODBC;
