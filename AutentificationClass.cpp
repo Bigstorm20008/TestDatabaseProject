@@ -166,6 +166,7 @@ LRESULT CALLBACK AutentificationProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
 			len, &rc,
 			DT_CENTER | DT_VCENTER | DT_NOCLIP | DT_WORDBREAK);
 		EndPaint(hWnd, &ps);
+
 		break;
 	}
 		// реакция на сообщение о прекращении работы программы

@@ -79,27 +79,32 @@ void ClientView::DestroyAllClientViewWindow()
 
 BOOL ClientView::getInfoAboutSelectedClient()
 {
-	extern LPTSTR szClassName;
-	extern LPTSTR szWindowName;
-	HWND parent = FindWindow(szClassName, szWindowName);
-	HWND btnToEnable = GetDlgItem(parent, ID_ENTRANCE_CASINO_BTN);
+	//extern LPTSTR szClassName;
+	//extern LPTSTR szWindowName;
+	//HWND parent = FindWindow(szClassName, szWindowName);
+	//HWND btnToEnable = GetDlgItem(parent, ID_ENTRANCE_CASINO_BTN);
 	std::vector<SQLTCHAR*>* selectedClient = allClient->getSelectedClient();
 	if (selectedClient->empty())
 	{
-		EnableWindow(btnToEnable, FALSE);
-		btnToEnable = GetDlgItem(parent, ID_EDIT_CLIENT_BTN);
-		EnableWindow(btnToEnable, FALSE);
+		//EnableWindow(btnToEnable, FALSE);
+		//btnToEnable = GetDlgItem(parent, ID_EDIT_CLIENT_BTN);
+		//EnableWindow(btnToEnable, FALSE);
+		//HBITMAP hBitmap = (HBITMAP)LoadImage(NULL, TEXT("D:\\Clients\\Безымянный1.bmp"), IMAGE_BITMAP, imageWidth, imageHeight, LR_LOADFROMFILE);
+		//SendMessage(staticWnd, STM_SETIMAGE, (WPARAM)IMAGE_BITMAP, (LPARAM)hBitmap);
+		//ShowWindow(staticWnd, SW_NORMAL);
+		//UpdateWindow(staticWnd);
 		return FALSE;
 	}
 	else
 	{		
-		EnableWindow(btnToEnable, TRUE);
-		btnToEnable = GetDlgItem(parent, ID_EDIT_CLIENT_BTN);
-		EnableWindow(btnToEnable, TRUE);
+		//EnableWindow(btnToEnable, TRUE);
+		//btnToEnable = GetDlgItem(parent, ID_EDIT_CLIENT_BTN);
+		//EnableWindow(btnToEnable, TRUE);
 		if (currentClient)
 		{
 			currentClient->FreeAllField();
 			currentClient->GetInfoForCurrentClient(selectedClient);
+			return TRUE;
 		}
 		else
 		{
@@ -167,4 +172,19 @@ void ClientView::destroyAuxiliaryWindows(void)
 		delete auxiliaryWindows;
 		auxiliaryWindows = nullptr;
 	}
+}
+
+void ClientView::showBtnForSelectedClient(void)
+{
+	buttons->showButtonsForSelectedClient();
+}
+
+void ClientView::disableBtnIfNotSelectedClient(void)
+{
+	buttons->disableBtnIfNotSelectedClient();
+}
+
+void ClientView::loadStandartImage(void)
+{
+	photoForCurrentClient->loadNullImage();
 }

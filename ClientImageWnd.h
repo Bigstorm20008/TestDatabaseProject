@@ -7,6 +7,7 @@ class ClientImageWnd
 public:
 	ClientImageWnd();
 	~ClientImageWnd();
+	void loadNullImage(void);
 	void showImageWindow(void);
 	void DestroyImageWindow();
 	void hideImageWindow(void);

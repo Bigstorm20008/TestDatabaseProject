@@ -110,3 +110,19 @@ void ClientViewButtons::showAllButtons(void)
 	hWndToShow = GetDlgItem(parentWndForBtns, ID_EDIT_CLIENT_BTN);
 	ShowWindow(hWndToShow, SW_NORMAL);
 }
+
+void ClientViewButtons::showButtonsForSelectedClient(void)
+{	
+	HWND hWndToShow = GetDlgItem(parentWndForBtns, ID_ENTRANCE_CASINO_BTN);
+	EnableWindow(hWndToShow, TRUE);
+	hWndToShow = GetDlgItem(parentWndForBtns, ID_EDIT_CLIENT_BTN);
+	EnableWindow(hWndToShow, TRUE);
+}
+
+void ClientViewButtons::disableBtnIfNotSelectedClient(void)
+{
+	HWND hWndToDisable = GetDlgItem(parentWndForBtns, ID_ENTRANCE_CASINO_BTN);
+	EnableWindow(hWndToDisable, FALSE);
+	hWndToDisable = GetDlgItem(parentWndForBtns, ID_EDIT_CLIENT_BTN);
+	EnableWindow(hWndToDisable, FALSE);
+}

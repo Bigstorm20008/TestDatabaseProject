@@ -15,6 +15,8 @@ private:
 	void createEntranceCasinoBtn(void);
 	void createEditClientBtn(void);
 public:
+	void disableBtnIfNotSelectedClient(void);
+	void showButtonsForSelectedClient(void);
 	void hideAllButtons(void);
 	void showAllButtons(void);
 	void destroyAllClientViewButtons();

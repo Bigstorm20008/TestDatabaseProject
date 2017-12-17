@@ -17,13 +17,16 @@ private:
 	//ClientMainInfoWnd* currentClientInfoWnd;
 	//ClientExtendedInfo* extendedInfoForCurrClient;
 public:
+	void loadStandartImage(void);
+	void disableBtnIfNotSelectedClient(void);
+	void showBtnForSelectedClient(void);
 	void destroyAuxiliaryWindows(void);
 	void showAllWndForClientView(void);
-	void hideWndForClientView();
+	void hideWndForClientView(void);
 	void InitAddClientWnd(void);
-	void CreateClientViewWindows();
-	void DestroyAllClientViewWindow();
-	BOOL getInfoAboutSelectedClient();
+	void CreateClientViewWindows(void);
+	void DestroyAllClientViewWindow(void);
+	BOOL getInfoAboutSelectedClient(void);
 	ClientView();
 	~ClientView();
 };

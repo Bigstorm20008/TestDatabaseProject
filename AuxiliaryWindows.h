@@ -11,6 +11,7 @@ class AuxiliaryWindows
 	int auxiliaryWndHeight;
 	int xPosCentred;
 	int yPosCentred;
+	void createEditBoxWithDescription(HWND parent, LPTSTR description,UINT editBoxIdentifier,UINT staticControlIdentifier,int editBox_xPos,int  editBox_yPos,int editBox_width,int editBox_height);
 public:
 	void destroyAuxiliaryWindow();
 	void createAddNewClientWnd();

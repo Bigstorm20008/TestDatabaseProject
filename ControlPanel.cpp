@@ -61,7 +61,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
 	case WM_LISTVIEW_CLICKED:
 	{
-		clientView->getInfoAboutSelectedClient();
+		BOOL checkResult = clientView->getInfoAboutSelectedClient();
+		if (checkResult)
+		{
+			clientView->showBtnForSelectedClient();
+		}
+		else
+		{
+			clientView->disableBtnIfNotSelectedClient();
+			clientView->loadStandartImage();
+		}
 		break;
 	}
 	case WM_COMMAND:
