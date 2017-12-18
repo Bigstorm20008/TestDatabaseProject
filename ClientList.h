@@ -13,20 +13,20 @@
 class ClientList
 {
 private:
-	SQLSMALLINT numCols;
-	void GetDataFromDatabase();
-	int width;
-	int height;
-	HWND listWnd;
-	std::vector<SQLTCHAR*>* selectedItem;
+	SQLSMALLINT numCols;                    //count of columns in dataset and listview
+	void GetDataFromDatabase();             //load to listview data from database
+	int width;                              //width of listview
+	int height;                             //height of listview
+	HWND listWnd;                           //handle to listview
+	std::vector<SQLTCHAR*>* selectedItem;   //pointer to vector of pointer to SQLTCHAR. Here save data from seected item in listview     
 
-	void FreeVector();
+	void FreeVector();                      //free vector before and after using
 public:
-	std::vector<SQLTCHAR*>* getSelectedClient(void);
-	void InitListView();
-	void DestroyListView();
-	void hideListView();
-	void showListView(void);
+	std::vector<SQLTCHAR*>* getSelectedClient(void);   //get data from selected item in listview 
+	void InitListView();                               //initialize listview window
+	void DestroyListView();                            //destroy listview window
+	void hideListView();                               //hide listview window
+	void showListView(void);                           //show listview window
 	ClientList();
 	~ClientList();
 };

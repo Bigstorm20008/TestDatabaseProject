@@ -3,20 +3,23 @@
 
 ClientImageWnd::ClientImageWnd()
 {
-	extern LPTSTR szClassName;
-	extern LPTSTR szWindowName;
-	HWND mainWnd = FindWindow(szClassName, szWindowName);
+	extern LPTSTR szClassName;                                 //window class of main app window(init in main.cpp)
+	extern LPTSTR szWindowName;                                //title of main app window(init in main.cpp)
+	mainWnd = FindWindow(szClassName, szWindowName);           //find handler of main window
+
+	//Create static control window
 	HWND staticWnd = CreateWindow(TEXT("STATIC"),
 		                          NULL,
 								  WS_CHILD | WS_VISIBLE | WS_BORDER | SS_BITMAP | SS_NOTIFY,
-								  5,
+								  5,     
 								  55,
-								  NULL,
-								  NULL,
+								  NULL,    //is not required if SS_BITMAP(width set by BITMAP)
+								  NULL,    //is not required if SS_BITMAP(height set by BITMAP)
 								  mainWnd, 
-								  (HMENU)ID_IMAGE_WND,
+								  (HMENU)ID_IMAGE_WND, //defined in Constatnts.h
 								  (HINSTANCE)GetWindowLong(NULL, GWLP_HINSTANCE),
 								  NULL);
+	//Load empty bitmap and set it
 	HBITMAP hBitmap = (HBITMAP)LoadImage(NULL, TEXT("D:\\Clients\\Безымянный1.bmp"), IMAGE_BITMAP, imageWidth, imageHeight, LR_LOADFROMFILE);
 	SendMessage(staticWnd, STM_SETIMAGE, (WPARAM)IMAGE_BITMAP, (LPARAM)hBitmap);
 	ShowWindow(staticWnd, SW_NORMAL);
@@ -30,37 +33,26 @@ ClientImageWnd::~ClientImageWnd()
 
 void ClientImageWnd::DestroyImageWindow()
 {
-	extern LPTSTR szClassName;
-	extern LPTSTR szWindowName;
-	HWND mainWnd = FindWindow(szClassName, szWindowName);
-	HWND imgWnd = GetDlgItem(mainWnd, ID_IMAGE_WND);
-	DestroyWindow(imgWnd);
+	HWND imgWnd = GetDlgItem(mainWnd, ID_IMAGE_WND);   //get handler to image window by identifier
+	DestroyWindow(imgWnd);                             //destroy image window
 }
 
 void ClientImageWnd::hideImageWindow(void)
 {
-	extern LPTSTR szClassName;
-	extern LPTSTR szWindowName;
-	HWND mainWnd = FindWindow(szClassName, szWindowName);
-	HWND imgWnd = GetDlgItem(mainWnd, ID_IMAGE_WND);
-	ShowWindow(imgWnd, SW_HIDE);
+	HWND imgWnd = GetDlgItem(mainWnd, ID_IMAGE_WND);  //get handler to image window by identifier
+	ShowWindow(imgWnd, SW_HIDE);                      //hide image window
 }
 
 void ClientImageWnd::showImageWindow(void)
 {
-	extern LPTSTR szClassName;
-	extern LPTSTR szWindowName;
-	HWND mainWnd = FindWindow(szClassName, szWindowName);
-	HWND imgWnd = GetDlgItem(mainWnd, ID_IMAGE_WND);
-	ShowWindow(imgWnd, SW_NORMAL);
+	HWND imgWnd = GetDlgItem(mainWnd, ID_IMAGE_WND);  //get handler to image window by identifier
+	ShowWindow(imgWnd, SW_NORMAL);                    //show image window
 }
 
 void ClientImageWnd::loadNullImage(void)
-{
-	extern LPTSTR szClassName;
-	extern LPTSTR szWindowName;
-	HWND mainWnd = FindWindow(szClassName, szWindowName);
-	HWND imgWnd = GetDlgItem(mainWnd, ID_IMAGE_WND);
+{ 
+	HWND imgWnd = GetDlgItem(mainWnd, ID_IMAGE_WND);  //get handler to image window by identifier
+	//Load empty bitmap and set it
 	HBITMAP hBitmap = (HBITMAP)LoadImage(NULL, TEXT("D:\\Clients\\Безымянный1.bmp"), IMAGE_BITMAP, imageWidth, imageHeight, LR_LOADFROMFILE);
 	SendMessage(imgWnd, STM_SETIMAGE, (WPARAM)IMAGE_BITMAP, (LPARAM)hBitmap);
 	ShowWindow(imgWnd, SW_NORMAL);
