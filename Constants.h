@@ -33,4 +33,6 @@
 #define ID_CANCEL_ADD_TO_BASE_BTN  1018
 #define ID_EDITBOX_FOR_NICKNAME    1019
 #define ID_STATIC_DESCRIPTION      1020
-#define WM_LISTVIEW_CLICKED (WM_USER+1)
+
+//My messages
+#define WM_LISTVIEW_CLICKED (WM_USER+1)         //Message for controlpanel(mouse clicked in listview for ClienView)

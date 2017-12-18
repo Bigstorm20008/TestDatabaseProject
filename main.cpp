@@ -1,65 +1,60 @@
-//Подключаем библиотеку Windows
-#include <Windows.h>
-#include "AutentificationClass.h"
-#include <vld.h>
-#include "Constants.h"
 
+#include <Windows.h>     //connect library for OS Windows programming
+#include <vld.h>         //connect for check memory leak(need download and install from https://vld.codeplex.com/releases)
+
+#include "AutentificationClass.h"    //connect class for create Autentification window and check login and password
+#include "Constants.h"               //global variables for this project(include identifiers for windows and some constants)
+
+
+//for visual elements style Windows Vista and higher
 #pragma comment(linker,"\"/manifestdependency:type='win32' \
 name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
 processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
 
 
-//Прототип Функции для обработки сообщений
+//Prototype for message processing function
 LRESULT CALLBACK MainWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-CSqlFramework* sqlODBC = nullptr;
-//MyListView* listview = nullptr;
-LPTSTR szClassName = L"MainWindowApp";               //Переменная с именем класса главного окна
-LPTSTR szWindowName = L"Главное окно приложения";    //Переменная с названием главного окна
+CSqlFramework* sqlODBC = nullptr;                    //global pointer to CSqlFramework class for working with database(using ODBC API)
+LPTSTR szClassName = L"MainWindowApp";               //window class name for main application window
+LPTSTR szWindowName = L"Главное окно приложения";    //title for main application window
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
 
-
-	
-
-	//Заполняем структуру, необходимую для регистрации окна в Windows
+	//Create and fill structure for registration window class in OS Windows
 	WNDCLASSEX wcex;
 	wcex.cbClsExtra = wcex.cbWndExtra = NULL;
-	wcex.cbSize = sizeof(WNDCLASSEX);                                       //Размер структуры
-	wcex.hbrBackground = static_cast<HBRUSH>(GetStockObject(GRAY_BRUSH));   //Фон окна
-	wcex.hCursor = LoadCursor(NULL, IDC_ARROW);                             //Указываем тип указателя мыши
-	wcex.hIcon = LoadIcon(NULL, IDI_APPLICATION);                           //Указываем стандартную иконку приложения
-	wcex.hIconSm = NULL;                                                    //стандартная иконка на панели
-	wcex.hInstance =(HINSTANCE)GetWindowLong(NULL, GWLP_HINSTANCE);         //Получаем дескриптор нашего приложения
-	wcex.lpfnWndProc = MainWndProc;                                         //Указываем функцию для обработки сообщений в главном окне
-	wcex.lpszClassName = szClassName;                                       //Имя класса нашего окна
-	wcex.lpszMenuName = NULL;                                               //Меню отсутствует
-	wcex.style = CS_HREDRAW | CS_VREDRAW;                                   //Указываем стиль отображения окна(перерисовка по ветикали и горизонтали)
+	wcex.cbSize = sizeof(WNDCLASSEX);                                       //size of structure
+	wcex.hbrBackground = static_cast<HBRUSH>(GetStockObject(GRAY_BRUSH));   //window background
+	wcex.hCursor = LoadCursor(NULL, IDC_ARROW);                             //standart mouse pointer
+	wcex.hIcon = LoadIcon(NULL, IDI_APPLICATION);                           //standart main icon app
+	wcex.hIconSm = NULL;                                                    //standart small icon app
+	wcex.hInstance =(HINSTANCE)GetWindowLong(NULL, GWLP_HINSTANCE);         //descriptor for main window application
+	wcex.lpfnWndProc = MainWndProc;                                         //pointer to message processing function
+	wcex.lpszClassName = szClassName;                                       //window class name
+	wcex.lpszMenuName = NULL;                                               //no menu in window
+	wcex.style = CS_HREDRAW | CS_VREDRAW;                                   //window style (horizontal and vertical redraw)
 
-	//Позле заполнения структуры регистрируем класс окна в Windows
-	//В случае ошибки регистрации выдаем сообщение об ошибке и прерываем выполнение программы
-	if (!RegisterClassEx(&wcex))
-	{
-		MessageBox(NULL, L"Ошибка", L"Не удалось зарегистрировать окно!!!", MB_OK);
-		return FALSE;
-	}
+	//Register application window in OS Windows
+	RegisterClassEx(&wcex);
+	
 
-	//При успешной регистрации класса окна создаем само окно и отображаем его на экране
-	HWND hWnd = CreateWindow(szClassName,                                  //Класс окна
-		                     szWindowName,                                 //Имя окна
-							 WS_OVERLAPPEDWINDOW | WS_VISIBLE,             //Стиль окна(перекрывающееся и видимое)
-							 CW_USEDEFAULT,                                //
-							 CW_USEDEFAULT,                                //позиция окна по умолчанию
-							 CW_USEDEFAULT,                                //
-							 CW_USEDEFAULT,                                //размеры окна по умолчанию
-							 NULL,                                         //родительское окно  - рабочий стол
-							 NULL,                                         //меню отсутствует
-							 hInstance,                                    //дескриптор приложения
+	//Create main window and show it
+	HWND hWnd = CreateWindow(szClassName,                                  //window class name
+		                     szWindowName,                                 //title of main window
+							 WS_OVERLAPPEDWINDOW | WS_VISIBLE,             //window style
+							 CW_USEDEFAULT,                                //x position on desktop
+							 CW_USEDEFAULT,                                //y position on desktop
+							 CW_USEDEFAULT,                                //width of window
+							 CW_USEDEFAULT,                                //height of window
+							 NULL,                                         //parent window - desktop
+							 NULL,                                         //no menu
+							 hInstance,                                    //descriptor for main window application
 							 NULL); 
 
-	//Проверим создалось ли окно и в случае ошибки выведем сообщение и прервем работу программы
+	//check for creating window, if window no create - send message for user and break application
 	if (!hWnd)
 	{
 		MessageBox(NULL, L"Ошибка", L"Не удалось создать окно", MB_OK);
@@ -67,60 +62,56 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	}
 
 
-	//запускаем цикл обработки сообщений для нашего окна
+	//launch loop for processing message
 
-	MSG msg;  //Структура для получения сообщений
+	MSG msg;  //Structure for message in OS Windows
 	while (GetMessage(&msg, 0, 0, 0))
 	{
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
+		TranslateMessage(&msg);   //for keyboard messages
+		DispatchMessage(&msg);    //for mouse messages
 	}
 
 
-	//При завершении програмы вернем код завершения
-
+	//end application
 	return static_cast<int>(msg.wParam);
 }
 
 
-//Определение функции для обработки сообщений
+//definition for message processing function
 LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	switch (msg)
 	{
+	//process window create message
 	case WM_CREATE:
 	{	
-		sqlODBC = new CSqlFramework;               //Создади указатель на класс для работы с базой данных
-		AutentificationClass autentificationWindow(hWnd, autorizationWnd);		
+		sqlODBC = new CSqlFramework;               //initialize pointer for database working in dynamic memory
+		AutentificationClass autentificationWindow(hWnd, autorizationWnd);	//create autentification window	and give control to message processing function of autentificationWindow
 		break;
 	}
-	case WM_SIZE:
-	{
-		break;
-	}
+	//process messages from control(button,static,listview e.t.c)
 	case WM_COMMAND:
 	{
-		if (LOWORD(wParam) == ID_ADD_NEW_CLIENT_BTN)
+		if (LOWORD(wParam) == ID_ADD_NEW_CLIENT_BTN)      //if message from ID_ADD_NEW_CLIENT_BTN (defined in "Constants.h")
 		{
-			HWND controlPanel = GetDlgItem(hWnd, ID_CASHIER_PANEL);
-			SendMessage(controlPanel, WM_COMMAND, ID_ADD_NEW_CLIENT_BTN, 0);
+			HWND controlPanel = GetDlgItem(hWnd, ID_CASHIER_PANEL);            //Get controlPanel handler
+			SendMessage(controlPanel, WM_COMMAND, ID_ADD_NEW_CLIENT_BTN, 0);   //and send message ID_ADD_NEW_CLIENT_BTN (defined in "Constants.h") in message processing function of controlPanel window
 		}
-   		//if (LOWORD(wParam) == ID_IMAGE_WND)
-			//MessageBox(NULL, L"Статик", L"Info", MB_OK);
 		break;
 	}
+	//process message from control with _NOTIFY style
 	case WM_NOTIFY:
 	{
 		switch (((LPNMHDR)lParam)->code)
 		{
-		case NM_CLICK:
-		case NM_RCLICK:
+		case NM_CLICK:    //left mouse button
+		case NM_RCLICK:   //rigth mouse button
 		{
-			if (((LPNMHDR)lParam)->idFrom == ID_LIST_FOR_CLIENTVIEW)
+			if (((LPNMHDR)lParam)->idFrom == ID_LIST_FOR_CLIENTVIEW)                  //if message send ID_LIST_FOR_CLIENTVIEW(defined in "Constants.h")
 			{
-				HWND controlPanel = GetDlgItem(hWnd, ID_CASHIER_PANEL);
-				HWND listWnd = GetDlgItem(hWnd, ID_LIST_FOR_CLIENTVIEW);
-				SendMessage(controlPanel, WM_LISTVIEW_CLICKED, 0, 0);
+				HWND controlPanel = GetDlgItem(hWnd, ID_CASHIER_PANEL);               //Get controlPanel handler
+				HWND listWnd = GetDlgItem(hWnd, ID_LIST_FOR_CLIENTVIEW);              //Get listview handler of client view in application 
+				SendMessage(controlPanel, WM_LISTVIEW_CLICKED, 0, 0);                 ////and send message WM_LISTVIEW_CLICKED (defined in "Constants.h") in message processing function of controlPanel window
 			}
 			break;
 		}
@@ -129,17 +120,16 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		}
 		break;
 	}
-    // реакция на сообщение о прекращении работы программы
+    //process message if aplication close
 	case WM_DESTROY:
-		sqlODBC->CloseConnection();
-		delete sqlODBC;
-		sqlODBC = nullptr;
-		
-		PostQuitMessage(0);  
+		sqlODBC->CloseConnection();         //close connection with database and free all resource
+		delete sqlODBC;                     //delete pointer
+		sqlODBC = nullptr;                  //set pointer at not valid
+		PostQuitMessage(0);                 //send message to OS Windows about closing app
 		break;
-	//Обработка всех остальных сообщений производится ОС по умолчанию
+	//processing other messages provide OS Windows
 	default:
-		return DefWindowProc(hWnd,msg,wParam,lParam); //Просто вернем системе сообщение, которого нет в нашем обработчике
+		return DefWindowProc(hWnd,msg,wParam,lParam); 
 	}
 	return 0;
 }

@@ -3,7 +3,7 @@
 
 AutentificationClass::AutentificationClass(HWND hWnd, UINT identifier)
 {
-	//Создаем и заполняем структуру для создания окна
+	//Create and fill structure for window class
 	WNDCLASSEX wcex;
 	wcex.cbClsExtra = wcex.cbWndExtra = 0;
 	wcex.cbSize = sizeof(WNDCLASSEX);
@@ -13,29 +13,28 @@ AutentificationClass::AutentificationClass(HWND hWnd, UINT identifier)
 	wcex.hIconSm = NULL;
 	wcex.hInstance = reinterpret_cast<HINSTANCE>(GetWindowLong(NULL, GWLP_HINSTANCE));
 	wcex.lpfnWndProc = AutentificationProc;
-	wcex.lpszClassName = L"AutentificationWindowClass";
+	wcex.lpszClassName = TEXT("AutentificationWindowClass");
 	wcex.lpszMenuName = NULL;
 	wcex.style = CS_HREDRAW | CS_VREDRAW;
-	//Регистрируем окно в системе
-	if (!RegisterClassEx(&wcex))
-	{
-		MessageBox(NULL, L"Не удалось зарегистрировать окно авторизации", L"Ошибка", MB_OK);
-	}
-	//Создаем структуру и получаем координаты клиентской части родительского окна
+	
+	//register class in system
+	RegisterClassEx(&wcex);
+
+	//Create structure RECT and get client area coordinates of main aplication window
 	RECT rc;
 	GetClientRect(hWnd, &rc);
 
-	int width = 300;      //Ширина дочернего окна
-	int height = 150;     //Высота дочернего окна
+	int width = 300;      //width of autentification window
+	int height = 150;     //height of autentification window
 
-	//Вычисляем координаты для отрисовки дочернего окна для расположения его по центру родительского
-	int xPos = (rc.right - 200) / 2;
-	int yPos = (rc.bottom - height) / 2;
+	//compute coordinates (x,y) in client area of main window for autentification window(window in center of parent)
+	int xPos = rc.right/2 -  width / 2;
+	int yPos = rc.bottom/2 - height / 2;
 
-	//Создаем и отображаем само окно
-	CreateWindow(L"AutentificationWindowClass",
-		         L"Аутентификация",
-				 WS_CHILD | WS_BORDER | WS_VISIBLE,
+	//Create and show autentification window
+	CreateWindow(TEXT("AutentificationWindowClass"),
+		         TEXT("Аутентификация"),
+				 WS_CHILD | WS_BORDER | WS_VISIBLE |WS_TABSTOP,
 				 xPos,
 				 yPos,
 				 width,
@@ -55,12 +54,17 @@ LRESULT CALLBACK AutentificationProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
 {
 	switch (msg)
 	{
+    //process window create message
 	case WM_CREATE:
 	{
-		HWND hUserName, hPass;
-		LPTSTR strUser = L"Zhmenka";
-		LPTSTR strPass = L"47dim9175rty";
-		hUserName = CreateWindow(L"EDIT",
+		//if autentification window is create - create interface of window 
+
+		HWND hUserName, hPass;                  //handlers for "EDIT" windows 
+		LPTSTR strUser = TEXT("Zhmenka");       //username by default is "Zhmenka"
+		LPTSTR strPass = TEXT("47dim9175rty");  //pass by default is "47dim9175rty"
+
+		//Create "EDIT" window for username
+		hUserName = CreateWindow(TEXT("EDIT"),
 			                     strUser,
 								 WS_CHILD | WS_VISIBLE | WS_BORDER | WS_TABSTOP,
 								 10,
@@ -68,19 +72,24 @@ LRESULT CALLBACK AutentificationProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
 								 280,
 								 20,
 								 hWnd,
-								 (HMENU)ID_USER_NAME,
+								 (HMENU)ID_USER_NAME,  //defined in "COnstants.h"
 								 (HINSTANCE)GetWindowLong(NULL,GWLP_HINSTANCE),
 								 NULL);
+		//Create font for "EDIT"
 		HFONT hFont;
 		hFont = CreateFont(16, 0, 0, 0, 0, 0, 0, 0,
 			DEFAULT_CHARSET,
 			0, 0, 0, VARIABLE_PITCH,
-			L"Time New Romans");
-		HWND userWnd = GetDlgItem(hWnd, ID_USER_NAME);
-		SendMessage(userWnd, WM_SETFONT, (WPARAM)hFont, NULL);
-		SendMessage(userWnd, EM_SETSEL, 0, wcslen(strUser));
+			TEXT("Time New Romans"));
+		//Set font in username window
+		SendMessage(hUserName, WM_SETFONT, (WPARAM)hFont, NULL);
+		//select all in username window
+		SendMessage(hUserName, EM_SETSEL, 0, wcslen(strUser));
+		//set focus on username window
 		SetFocus(hUserName);
-		hPass = CreateWindow(L"EDIT",
+
+		//Create "EDIT" for password window
+		hPass = CreateWindow(TEXT("EDIT"),
 			                 strPass,
 							 WS_CHILD | WS_VISIBLE | WS_BORDER | ES_PASSWORD | WS_TABSTOP,
 			                 10,
@@ -88,49 +97,59 @@ LRESULT CALLBACK AutentificationProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
 			                 280,
 			                 20,
 			                 hWnd,
-			                 (HMENU)ID_PASS,
+			                 (HMENU)ID_PASS,  //defined in "COnstants.h"
 			                 (HINSTANCE)GetWindowLong(NULL, GWLP_HINSTANCE),
 			                 NULL);
-		HWND passWnd = GetDlgItem(hWnd, ID_PASS);
-		SendMessage(passWnd, WM_SETFONT, (WPARAM)hFont, NULL);
+		//set font in password window
+		SendMessage(hPass, WM_SETFONT, (WPARAM)hFont, NULL);
+
+		//Create buttons(using class MyButton)
 		MyButton okBtn;
-		okBtn.CreateButton(hWnd, ID_OKBTN, L"Продолжить", 200, 125, 90, 20);
+		okBtn.CreateButton(hWnd, ID_OKBTN, TEXT("Продолжить"), 200, 125, 90, 20);
 		MyButton cancelBtn;
-		cancelBtn.CreateButton(hWnd, ID_CANCELBTN, L"Отмена", 100, 125, 90, 20);
+		cancelBtn.CreateButton(hWnd, ID_CANCELBTN, TEXT("Отмена"), 100, 125, 90, 20);
 		break;
 	}
+
+	//process message from controls of autentification window
 	case WM_COMMAND:
 	{
 		switch (LOWORD(wParam))
 		{
-		case ID_OKBTN:    //Обработка при нажатии кнопки продолжить в окне авторизации
+		case ID_OKBTN:    //if control is ID_OKBTN (defined in "COnstants.h")
 		{
-			//Получим данные для проверки
-			HWND hWndUserName = GetDlgItem(hWnd, ID_USER_NAME);               //Получим дескриптор окна ввода имени пользователя
-			size_t len = GetWindowTextLength(hWndUserName) ;                  //Получим длину, содержащегося в ней текста и сохраним в переменную 
-			TCHAR* userName = new TCHAR[len + sizeof(TCHAR)];                                 //Выделим память для сохранения текста
-			GetWindowText(hWndUserName, userName, len + sizeof(TCHAR));       //Получим сам текст и сохраним его в выделенной памяти
-			HWND hWndPass = GetDlgItem(hWnd, ID_PASS);                        //Получим дескриптор окна ввода пароля
-			len = GetWindowTextLength(hWndPass);                              //В ранее созданную переменную сохраним длину текста
-			TCHAR* pass = new TCHAR[len + sizeof(TCHAR)];                     //Выделим память для сохранения текста
-			GetWindowText(hWndPass, pass, len + sizeof(TCHAR));                               //Получим сам текст и сохраним его в выделенной памяти
+			//Get data for connect to database
+			//========================================================================================================
+			HWND hWndUserName = GetDlgItem(hWnd, ID_USER_NAME);               //Get handle of username EDIT window
+			size_t len = GetWindowTextLength(hWndUserName) ;                  //Get lenght of text in EDIT
+			TCHAR* userName = new TCHAR[len + sizeof(TCHAR)];                 //Allocate memory for save it
+			GetWindowText(hWndUserName, userName, len + sizeof(TCHAR));       //Save data to userName
+			//=========================================================================================================
+			HWND hWndPass = GetDlgItem(hWnd, ID_PASS);                        //Get handle of password EDIT window
+			len = GetWindowTextLength(hWndPass);                              //Get lenght of text in EDIT
+			TCHAR* pass = new TCHAR[len + sizeof(TCHAR)];                     //Allocate memory for save it
+			GetWindowText(hWndPass, pass, len + sizeof(TCHAR));               //Save data to pass
+			//==========================================================================================================
+
+
+			//Connect to database using userName and pass......
 			
-			//Подключимся к базе данных.....
-			extern CSqlFramework* sqlODBC;
+			extern CSqlFramework* sqlODBC;  //allocating in main.cpp for working with database
 			
-			if (sqlODBC->OpenConnection(L"Malinka", userName, pass))  //Подключимся к источнику данных "Malinka", используя введенные логин и пароль
+			if (sqlODBC->OpenConnection(TEXT("Malinka"), userName, pass))  //Open connection to datasource "Malinka", using userName and pass
 			{
-				AutorisationClass autorisation;
-				DestroyWindow(hWnd);
+				//if connection is open.....
+				AutorisationClass autorisation;  //give control to AutorizationClass   
+				DestroyWindow(hWnd);             //and destroy autentification window
 				
 			}
-			else
+			else   //if error connection....
 			{
-				MessageBox(NULL, L"Неверный логин или пароль", L"Ошибка", MB_OK);
+				//message to user 
+				MessageBox(NULL, TEXT("Неверный логин или пароль"), TEXT("Ошибка"), MB_OK);
 			}
 
-                                   
-			//После использования освободим память и установим указатель в nullptr
+			//after using free memory and set pointers to no valid
 			delete userName;
 			userName = nullptr;
 			delete pass;
@@ -138,9 +157,10 @@ LRESULT CALLBACK AutentificationProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
 
 			break;
 		}
-		case ID_CANCELBTN:
+
+		case ID_CANCELBTN:        //if control is ID_CANCELBTN (defined in "COnstants.h")
 		{
-			PostQuitMessage(0);
+			PostQuitMessage(0);   //close aplication
 			break;
 		}
 		}
@@ -155,12 +175,12 @@ LRESULT CALLBACK AutentificationProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
 		hFont = CreateFont(17, 0, 0, 0, 0, 0, 0, 0,
 			DEFAULT_CHARSET,
 			0, 0, 0, VARIABLE_PITCH,
-			L"Time New Romans");
+			TEXT("Time New Romans"));
 		SelectObject(hDC, hFont);
 		RECT rc;
 		GetClientRect(hWnd, &rc);			
-		LPCWSTR str = L"Для продолжения работы необходимо ввести имя пользователя и пароль";
-		size_t len = wcslen(str);	
+		LPTSTR str = TEXT("Для продолжения работы необходимо ввести имя пользователя и пароль");
+		size_t len = _tcslen(str);	
 		DrawText(hDC,
 			str,
 			len, &rc,
