@@ -1,124 +1,101 @@
 #include "Binding.h"
 
-int Binding::destructorCalled = 0;
-int Binding::construcorCalled = 0;
 
 Binding::Binding()
 {
-	description = nullptr;
-	nextBinding = nullptr;
-	construcorCalled++;
+	//init all pointers by not valid value
+	pDescription = nullptr;     
+	pNextBinding = nullptr;
 }
 
 
 Binding::~Binding()
 {
 	
-	destructorCalled++;
-	if (description)
+	if (pDescription)
 	{
-		delete[]description;
-		description = nullptr;
+		delete[]pDescription;
+		pDescription = nullptr;
 	}
-	Binding* tempBinding = this->nextBinding;
-	while (tempBinding)
+	Binding* pTempBinding = this->pNextBinding;
+	while (pTempBinding)
 	{
-		delete[](tempBinding->description);
-		tempBinding->description = nullptr;
-		tempBinding = tempBinding->nextBinding;
+		delete[](pTempBinding->pDescription);
+		pTempBinding->pDescription = nullptr;
+		pTempBinding = pTempBinding->pNextBinding;
 	}
-	while (nextBinding)
+	while (pNextBinding)
 	{
-		delete nextBinding;
-		nextBinding = nullptr;
+		delete pNextBinding;
+		pNextBinding = nullptr;
 	}
 }
 
 
 void Binding::AllocateBindings(SQLHANDLE hStmthandle)
 {
-	SQLRETURN retcode; 
-	SQLSMALLINT numCols;
-	retcode = SQLNumResultCols(hStmthandle, &numCols);
+	SQLRETURN retcode;     //return for ODBC API function   
+	SQLSMALLINT numCols;   //here save count of columns in dataset
+	retcode = SQLNumResultCols(hStmthandle, &numCols);    //get count of columns from dataset
+
+	//binding variables for each columns
 	for (int i = 1; i <= numCols; i++)
 	{
 		//========================================================================================================================
-		if (i == 1) 
+		if (i == 1)     //if first column
 		{
-			retcode = SQLColAttribute(hStmthandle, i, SQL_DESC_DISPLAY_SIZE, NULL, NULL, NULL, &descLen);
-			size_t len = (descLen + 1);
-			SQLColAttribute(hStmthandle, i, SQL_DESC_LABEL, &columnName, sizeof(columnName), NULL, NULL);
-			description = new TCHAR[len];
-			SQLBindCol(hStmthandle, i, SQL_C_TCHAR, description, len*sizeof(TCHAR), &StrLen_or_Ind);
-			if (nextBinding)
+			Binding* pThisBinding = this;       //create temp pointer and init by "this" value ("this" pointer initialazing in dynamyc memory in CSqlFramework.cpp)
+			bindingVariables(hStmthandle, i, pThisBinding);  //binding varables
+			if (pNextBinding)       //if pNextBinding is valid
 			{
-				delete nextBinding;
-				nextBinding = nullptr;
-			}
-			continue;
+				delete pNextBinding;          //delete pNextBinding
+				pNextBinding = nullptr;       //set value to no valid
+			} 
+			continue;    //go to the next iteration
 		}
 
 		//=========================================================================================================================
-		if (i < numCols)
+		if (i < numCols)  //if index < numCols
 		{
 
-			if (!nextBinding)
+			if (!pNextBinding)      //if pNextBinding is not valid
 			{
-				Binding* lastBinding = new Binding;
-				nextBinding = lastBinding;
-				SQLColAttribute(hStmthandle, i, SQL_DESC_DISPLAY_SIZE, NULL, NULL, NULL, &lastBinding->descLen);
-				size_t len = (lastBinding->descLen + 1);
-				SQLColAttribute(hStmthandle, i, SQL_DESC_LABEL, &lastBinding->columnName, sizeof(columnName), NULL, NULL);
-				lastBinding->description = new TCHAR[len];
-				SQLBindCol(hStmthandle, i, SQL_C_TCHAR, lastBinding->description, len*sizeof(TCHAR), &nextBinding->StrLen_or_Ind);
+				Binding* pThisBinding = new Binding;	            //Allocate memory for current column			
+				bindingVariables(hStmthandle, i, pThisBinding);     //binding it
+				pNextBinding = pThisBinding;                        //init pNextBinding by pThisBinding
 			}
-			else
+			else    //if pNextBinding is valid
 			{
-				Binding* tempBinding = nextBinding;
-				while (tempBinding->nextBinding)
+				//find last element in single linked list
+				Binding* pTempBinding = pNextBinding;             //Create temp pointer and init by this->pNextBinding
+				while (pTempBinding->pNextBinding)                //while pTempBindng->pNextBinding is valid
 				{
-					tempBinding = tempBinding->nextBinding;
+					pTempBinding = pTempBinding->pNextBinding;    //set pTempBinding to pTempBinding->pNextBinding
 				}
-				Binding* lastBinding = new Binding;
-				SQLColAttribute(hStmthandle, i, SQL_DESC_DISPLAY_SIZE, NULL, NULL, NULL, &lastBinding->descLen);
-				size_t len = (lastBinding->descLen + 1);
-				SQLColAttribute(hStmthandle, i, SQL_DESC_LABEL, &lastBinding->columnName, sizeof(columnName), NULL, NULL);
-				lastBinding->description = new TCHAR[len];
-				SQLBindCol(hStmthandle, i, SQL_C_TCHAR, lastBinding->description, len*sizeof(TCHAR), &nextBinding->StrLen_or_Ind);
-				tempBinding->nextBinding = lastBinding;
-				continue;
+				Binding* pThisBinding = new Binding;              //Allocate memory for current column
+				bindingVariables(hStmthandle, i, pThisBinding);   //binding it
+				pTempBinding->pNextBinding = pThisBinding;        //set finded last element to pThisBinding
+				continue;    //go to the next iteration
 			}
 		}
 		//==============================================================================================================================
-		if (i == numCols)
+		if (i == numCols)        //if it last column in dataset
 		{
-			if (nextBinding)
+			if (pNextBinding)   //if pNextBinding is valid
 			{
-				Binding* tempBinding = nextBinding;
-				while (tempBinding->nextBinding)
+				//find last element
+				Binding* pTempBinding = pNextBinding;             //Create temp pointer and init by this->pNextBinding
+				while (pTempBinding->pNextBinding)                //while pTempBindng->pNextBinding is valid
 				{
-					tempBinding = tempBinding->nextBinding;
+					pTempBinding = pTempBinding->pNextBinding;    //set pTempBinding to pTempBinding->pNextBinding
 				}
-				Binding* lastBinding = new Binding;
-				SQLColAttribute(hStmthandle, i, SQL_DESC_DISPLAY_SIZE, NULL, NULL, NULL, &lastBinding->descLen);
-				size_t len = (lastBinding->descLen + 1);
-				lastBinding->description = new TCHAR[len];
-				SQLColAttribute(hStmthandle, i, SQL_DESC_LABEL, &lastBinding->columnName, sizeof(columnName), NULL, NULL);
-				SQLBindCol(hStmthandle, i, SQL_C_TCHAR, lastBinding->description, len*sizeof(TCHAR), &nextBinding->StrLen_or_Ind);
-				lastBinding->nextBinding = nullptr;
-				tempBinding->nextBinding = lastBinding;
+
+				Binding* pThisBinding = new Binding;              //Allocate memory for current column
+				bindingVariables(hStmthandle, i, pThisBinding);   //binding it
+				pThisBinding->pNextBinding = nullptr;             //its a last column, therefore set pNextBinding of current binding to not valid value
+				pTempBinding->pNextBinding = pThisBinding;		  //set finded last element to pThisBinding	 
 			}
-			else
-			{
-				Binding* lastBinding = new Binding;
-				retcode = SQLColAttribute(hStmthandle, i, SQL_DESC_DISPLAY_SIZE, NULL, NULL, NULL, &lastBinding->descLen);
-				size_t len = (lastBinding->descLen + 1);
-				lastBinding->description = new TCHAR[len];
-				SQLColAttribute(hStmthandle, i, SQL_DESC_LABEL, &lastBinding->columnName, sizeof(columnName), NULL, NULL);
-				retcode = SQLBindCol(hStmthandle, i, SQL_C_TCHAR, lastBinding->description, len*sizeof(TCHAR), &lastBinding->StrLen_or_Ind);
-				nextBinding = lastBinding;
-				lastBinding->nextBinding = nullptr;
-			}
+
 		}
 		//=================================================================================================================================
 	}
@@ -127,7 +104,7 @@ void Binding::AllocateBindings(SQLHANDLE hStmthandle)
 
 TCHAR* Binding::GetDescription(void)
 {
-	return description;
+	return pDescription;
 }
 
 TCHAR* Binding::GetColumnName(void)
@@ -137,18 +114,50 @@ TCHAR* Binding::GetColumnName(void)
 
 Binding* Binding::GetNextBinding(void)
 {
-	return nextBinding;
+	return pNextBinding;
 }
 
 void Binding::FreeBinding(void)
 {
-	Binding* tempBinding = this;
-	while (tempBinding)
+	Binding* pTempBinding = this;
+	while (pTempBinding)
 	{
-		delete[] tempBinding->description;
-		tempBinding->description = nullptr;
-		tempBinding->descLen = 0;
-		tempBinding->StrLen_or_Ind = 0;
-		tempBinding = tempBinding->nextBinding;
+		delete[] pTempBinding->pDescription;
+		pTempBinding->pDescription = nullptr;
+		pTempBinding->pDescLen = 0;
+		pTempBinding->StrLen_or_Ind = 0;
+		pTempBinding = pTempBinding->pNextBinding;
 	}
+}
+
+void Binding::bindingVariables(SQLHANDLE statementHandle, int index, Binding* pThisBinding)
+{
+	//Get maximum number of characters required to display data from the column
+	SQLRETURN retcode = SQLColAttribute(statementHandle,                //statetment handle
+		                                index,                          //number of row in dataset
+										SQL_DESC_DISPLAY_SIZE,          //maximum number of characters required to display data
+										NULL,                           //is not required if SQL_DESC_DISPLAY_SIZE
+										NULL,                           //is not required if SQL_DESC_DISPLAY_SIZE
+										NULL,                           //is not required if SQL_DESC_DISPLAY_SIZE
+										&pThisBinding->pDescLen);       //here save lenght in characters
+	
+	size_t len = (pThisBinding->pDescLen + 1);          //Compute lenght in characters for save data
+	pThisBinding->pDescription = new TCHAR[len];        //Allocate memory for saving data
+
+	//Get the column label or title
+	retcode = SQLColAttribute(statementHandle,                    //statetment handle
+		                      index,                              //number of row in dataset
+							  SQL_DESC_LABEL,                     //column label or title
+							  &pThisBinding->columnName,          //here save column label or title
+							  sizeof(pThisBinding->columnName),   //size of pThisBinding->columnName in bytes
+							  NULL,                               //is not required if SQL_DESC_LABEL
+							  NULL);                              //is not required if SQL_DESC_LABEL
+	
+	//Binding 
+	retcode = SQLBindCol(statementHandle,                   //statetment handle
+		                 index,                             //number of row in dataset
+						 SQL_C_TCHAR,                       //type from convert data
+						 pThisBinding->pDescription,        //here save data from dataset
+						 len*sizeof(TCHAR),                 //size pThisBinding->pDescription in bytes
+						 &pThisBinding->StrLen_or_Ind);     //here save actual size in characters when called SQLFetch() function
 }

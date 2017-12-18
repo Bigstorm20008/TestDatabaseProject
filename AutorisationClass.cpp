@@ -3,18 +3,18 @@
 
 AutorisationClass::AutorisationClass()
 {	
-	GetDBUserName();
-	GetRoleOfCurrentUser();
-	MyUserInterface interfaceForUser(pRoleMember);
+	GetDBUserName();                                  //get username from database
+	GetRoleOfCurrentUser();                           //get role of current user from database
+	MyUserInterface interfaceForUser(pRoleMember);    //give control to MyUserInterface class for create GUI
 }
 
 
 AutorisationClass::~AutorisationClass()
 {
-	//Удалим переменные, выделенные операцией new
-	delete[]pUserName;
+	//if destructor called delete all variable and set it to not valid
+	delete [] pUserName;
 	pUserName = nullptr;
-	delete pRoleMember;
+	delete [] pRoleMember;
 	pRoleMember = nullptr;
 	
 }
@@ -22,76 +22,57 @@ AutorisationClass::~AutorisationClass()
 void AutorisationClass::GetDBUserName()
 {
 
-
-	extern CSqlFramework* sqlODBC;                                //Переменная объявлена глобально в main.cpp
-	TCHAR* sqlCommand = TEXT("SELECT CURRENT_USER");              //Запрос для SQL Server
-	SQLHANDLE hStmt = sqlODBC->SendQueryToDatabase(sqlCommand);   //Отправим запрос на выполнение и получим дескриптор hsTmt
-	//Результатом данного запроса будет 1 строка поэтому просто извлечем данные из источника
+	extern CSqlFramework* sqlODBC;                                //allocating in main.cpp for working with database
+	TCHAR* sqlCommand = TEXT("SELECT CURRENT_USER");              //query to database for get current user
+	SQLHANDLE hStmt = sqlODBC->SendQueryToDatabase(sqlCommand);   //send query to database and save statement handle fo fetching data
+	
+	//Result of this query is 1 row, get it
 	SQLFetch(hStmt);
-	//Получим наши данные
+	//Get class where saved data from dataset(result of query)
 	Binding* pBinding = sqlODBC->GetBinding();
-	//Получим длину, полученного имени пользователя
+	//Get lenght of username 
 	size_t len = _tcslen(pBinding->GetDescription());
-	//Выделим память для сохранения и обнулим ее
+	//Allocate memory for save it and fill it by /0
 	pUserName = new TCHAR[len + sizeof(TCHAR)];
 	memset(pUserName, 0, len*sizeof(TCHAR));
-	//Скопируем данные в pUserName
-	lstrcat(pUserName, pBinding->GetDescription());
-	//Освободим ресурсы после использования
+	//copy current username to pUserName
+	_tcscat_s(pUserName, len+1, pBinding->GetDescription());
+	//Free resource after using
 	sqlODBC->FreeBinding(hStmt);
-	
-	
-	
-	
-
 	
 }
 
 void AutorisationClass::GetRoleOfCurrentUser()
 {
-	extern CSqlFramework* sqlODBC;                       //Переменная объявлена глобально в main.cpp
-	TCHAR* partOfsqlCommand = TEXT("EXEC sp_helpuser");       //SQL запрос для получения информации о пользователе(без имени пользователя)
+	extern CSqlFramework* sqlODBC;                            //allocating in main.cpp for working with database
+	SQLTCHAR* sqlCommand = TEXT("EXEC sp_helpuser ?");        //SQL query with parameter
+	SQLTCHAR* parametrArray[1] = { pUserName };               //parameter for query (pUsername)
 
-	//Составим SQL запрос для БД......
-	//Получим длину запроса и выделим память для него
-	size_t len = _tcslen(partOfsqlCommand) + _tcslen(pUserName) + _tcslen(TEXT(" '")) + _tcslen(TEXT("'"));
-	TCHAR* sqlCommand = new TCHAR[len+1];
-	//Обнулим, выделенную память
-	memset(sqlCommand, 0, len);
-	//Составим запрос путем конкатенации
-	lstrcat(sqlCommand, partOfsqlCommand);
-	lstrcat(sqlCommand, TEXT(" '"));
-	lstrcat(sqlCommand, pUserName);
-	lstrcat(sqlCommand, TEXT("'"));
-	//Отправим запрос на выполнение и получим операторный дескриптор hstmt
-	SQLHANDLE hStmt = sqlODBC->SendQueryToDatabase(sqlCommand);
-	//Получим указатель на класс с полученными данными
-	Binding* pBinding = sqlODBC->GetBinding();
-	//Извлечем полученные данные, основываясь на имени столбца('RoleName')
-	while (SQLFetch(hStmt) != SQL_NO_DATA)
+	SQLHANDLE hStmt = sqlODBC->ExecutePrepearedQuery(sqlCommand, parametrArray);  //send query with parameter and parameter to execute
+	Binding* pBinding = sqlODBC->GetBinding();               //Get class where saved data from dataset(result of query)
+
+	//Fetching result to pBinding
+	while (SQLFetch(hStmt) != SQL_NO_DATA)                  
 	{
-		Binding* thisBinding = pBinding;
+		Binding* thisBinding = pBinding;     //temp binding
 		while (thisBinding)
 		{
-			if (lstrcmp(thisBinding->GetColumnName(),TEXT("RoleName")) == 0)
+			if (_tcscmp(thisBinding->GetColumnName(), TEXT("RoleName")) == 0)    //if value in ColumnName = "RoleName"
 			{
-				size_t len = lstrlen(thisBinding->GetDescription());
-				pRoleMember = new TCHAR[len + 1];
-				memset(pRoleMember, 0, len);
-				lstrcat(pRoleMember, thisBinding->GetDescription());
+				size_t len = _tcslen(thisBinding->GetDescription());   //get len of description(role name)
+				pRoleMember = new TCHAR[len + 1];                      //allocate memory for saving it
+				memset(pRoleMember, 0, len*sizeof(TCHAR));             //fill it by /0
+				_tcscat_s(pRoleMember,len+1, thisBinding->GetDescription());   //copy description to pRoleMember
 				break;
 			}
-			else
+			else   //if ColumName != "RoleName"
 			{
-				thisBinding = thisBinding->GetNextBinding();
+				thisBinding = thisBinding->GetNextBinding();     //set pointer to nextBinding
 			}
 		}
 		
 	}
-	sqlODBC->FreeBinding(hStmt);
-	delete sqlCommand;
-	sqlCommand = nullptr;
-
+	sqlODBC->FreeBinding(hStmt);    //Free all resource after working
 }
 
 

@@ -4,15 +4,17 @@
 #include "MyUserInterface.h"
 #include <tchar.h>
 
-
+//This class define rights of current user in database and give control to MyUserInterface class for create GUI
 class AutorisationClass
 {
 private:
 
-	TCHAR* pUserName;            //Сюда сохраним имя текущего пользователя
-	TCHAR* pRoleMember;          //Роль текущего пользователя
-	void GetDBUserName();        //Функция получает имя текущего пользователя БД и сохраняет его в pUserName
-	void GetRoleOfCurrentUser(); //Функция получает роль текущего пользователя в БД и сохраняет ее в pRoleMember
+	TCHAR* pUserName;            //here save current username
+	TCHAR* pRoleMember;          //here save role of current user in database
+
+	
+	void GetDBUserName();        //Function get username of current user from database	
+	void GetRoleOfCurrentUser(); //Function get role of current user from database
 
 public:
 	AutorisationClass();

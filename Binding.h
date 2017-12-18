@@ -5,23 +5,21 @@
 #include <sqlext.h>
 #include <iostream>
 
-
+//This class binding variables in class to result of dataset. It is single linked list
 class Binding
 {
 private:
-	
-	TCHAR* description;
-	SQLLEN descLen;
-	SQLLEN StrLen_or_Ind;
-	Binding* nextBinding;
-	SQLTCHAR columnName[250];
-	
 
+	TCHAR* pDescription;         //description for current binding
+	SQLLEN pDescLen;             //maximum lenght for current column
+	SQLLEN StrLen_or_Ind;        //actual lenght for current description(initializing when use SQLFetch())
+	Binding* pNextBinding;       //pointer to next Binding
+	SQLTCHAR columnName[250];    //column name for current binding
+	
+	void bindingVariables(SQLHANDLE statementHandle, int index, Binding* pThisBinding);
 	
 public:
-	static int destructorCalled;
-	static int construcorCalled;
-
+	
 	void AllocateBindings(SQLHANDLE hStmthandle);
 	TCHAR* GetDescription(void);
 	TCHAR* GetColumnName(void);

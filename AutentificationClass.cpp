@@ -150,9 +150,9 @@ LRESULT CALLBACK AutentificationProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
 			}
 
 			//after using free memory and set pointers to no valid
-			delete userName;
+			delete[] userName;
 			userName = nullptr;
-			delete pass;
+			delete[] pass;
 			pass = nullptr;
 
 			break;
