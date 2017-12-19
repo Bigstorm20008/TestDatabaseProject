@@ -3,6 +3,7 @@
 #include <Windows.h>
 #include <windowsx.h>
 #include "Constants.h"
+#include "SqlFramework.h"
 
 class AuxiliaryWindows
 {

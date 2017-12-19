@@ -81,8 +81,72 @@ void AuxiliaryWindows::createAddNewClientWnd()
 								  (HMENU)ID_CANCEL_ADD_TO_BASE_BTN,
 		                          (HINSTANCE)GetWindowLong(NULL, GWLP_HINSTANCE),
 		                          NULL);
+	int xPosForEdit = 10;
+	int yPosForEdit = 40;
+	int widthForEdit = 200;
+	int heightForEdit = 20;
+	createEditBoxWithDescription(hwnd, TEXT("Nickname*"), ID_EDITBOX_FOR_NICKNAME, ID_DESCRIPTION_NICKNAME, xPosForEdit, yPosForEdit, widthForEdit, heightForEdit);
 
-	createEditBoxWithDescription(hwnd, L"Nickname*", ID_EDITBOX_FOR_NICKNAME, ID_STATIC_DESCRIPTION, 10, 40, 200, 20);
+	yPosForEdit = yPosForEdit + heightForEdit + 10 + 25;
+	createEditBoxWithDescription(hwnd, TEXT("Фамилия"), ID_EDITBOX_FOR_LASTNAME, ID_DESCRIPTION_LASTNAME, xPosForEdit, yPosForEdit, widthForEdit, heightForEdit);
+
+	yPosForEdit = yPosForEdit + heightForEdit + 10 + 25;
+	createEditBoxWithDescription(hwnd, TEXT("Имя"), ID_EDITBOX_FOR_FIRSTNAME, ID_DESCRIPTION_FIRSTNAME, xPosForEdit, yPosForEdit, widthForEdit, heightForEdit);
+
+	yPosForEdit = yPosForEdit + heightForEdit + 10 + 25;
+	createEditBoxWithDescription(hwnd, TEXT("Отчество"), ID_EDITBOX_FOR_PATRONYMIC, ID_DESCRIPTION_PATRONYMIC, xPosForEdit, yPosForEdit, widthForEdit, heightForEdit);
+
+	yPosForEdit = yPosForEdit + heightForEdit + 10 + 25;
+	createEditBoxWithDescription(hwnd, TEXT("Дата рождения (чч/мм/гггг)"), ID_EDITBOX_FOR_BIRTHDAY, ID_DESCRIPTION_BIRTHDAY, xPosForEdit, yPosForEdit, widthForEdit, heightForEdit);
+
+	yPosForEdit = yPosForEdit + heightForEdit + 10 + 25;
+	HWND hWndStatusComboBox = CreateWindow(TEXT("COMBOBOX"), TEXT(""),
+		CBS_DROPDOWNLIST | CBS_HASSTRINGS | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE,
+		xPosForEdit, yPosForEdit, widthForEdit, heightForEdit, hwnd, NULL, (HINSTANCE)GetWindowLong(NULL, GWLP_HINSTANCE),
+		NULL);
+	extern CSqlFramework* sqlODBC;
+	SQLHANDLE statementHandle = sqlODBC->SendQueryToDatabase(TEXT("SELECT Статус FROM dbo.Status"));
+	Binding* pBinding = sqlODBC->GetBinding();
+	while (SQLFetch(statementHandle) == SQL_SUCCESS)
+	{
+		Binding* pTempBinding = pBinding;
+		while (pTempBinding)
+		{
+			SendMessage(hWndStatusComboBox, (UINT)CB_ADDSTRING, (WPARAM)0, (LPARAM)pTempBinding->GetDescription());
+			pTempBinding = pTempBinding->GetNextBinding();
+		}
+	}
+	sqlODBC->FreeBinding(statementHandle);
+
+	yPosForEdit = yPosForEdit + heightForEdit + 10 + 25;
+
+	HWND hList = CreateWindow(TEXT("LISTBOX"), NULL, WS_CHILD | WS_VISIBLE | LBS_STANDARD,
+		xPosForEdit, yPosForEdit, 200, heightForEdit + 10 + 25, hwnd, NULL, (HINSTANCE)GetWindowLong(NULL, GWLP_HINSTANCE), NULL);
+	RECT rcList;
+	GetWindowRect(hList, &rcList);
+	POINT tmp;
+	tmp.x = rcList.right;
+	tmp.y = rcList.bottom;
+	ScreenToClient(hwnd, &tmp);
+	int btnPhoneWidth = 105;
+	int btnPhoneHeight = 20;
+	int btnPhoneXPos = tmp.x - btnPhoneWidth;
+	int btnPhoneYPos = tmp.y;
+	
+	HWND addPhoneBtn = CreateWindow(TEXT("BUTTON"), TEXT("Добавить номер"), WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,
+		btnPhoneXPos, btnPhoneYPos, btnPhoneWidth, btnPhoneHeight, hwnd, NULL, (HINSTANCE)GetWindowLong(NULL, GWLP_HINSTANCE), NULL);
+	HFONT hFont = CreateFont(15, 0, 0, 0, 0, 0, 0, 0,
+		DEFAULT_CHARSET,
+		0, 0, 0, VARIABLE_PITCH,
+		L"Time New Romans");
+	SendMessage(addPhoneBtn, WM_SETFONT, (WPARAM)hFont, (LPARAM)TRUE);
+	//int pos = (int)SendMessage(hList, LB_ADDSTRING, 0,
+		//(LPARAM)TEXT("hi worldghghghghghghghghg"));
+	//pos = (int)SendMessage(hList, LB_ADDSTRING, pos,
+		//(LPARAM)TEXT("hi world!!!"));
+
+
+
 }
 
 void AuxiliaryWindows::destroyAuxiliaryWindow()
@@ -98,7 +162,7 @@ void AuxiliaryWindows::createEditBoxWithDescription(HWND parent, LPTSTR descript
 {
 	HWND editWnd = CreateWindow(TEXT("EDIT"),
 		                        NULL,
-				                WS_CHILD | WS_VISIBLE | WS_BORDER,
+				                WS_CHILD | WS_VISIBLE | WS_BORDER |WS_TABSTOP,
 				                editBox_xPos,editBox_yPos,
 				                editBox_width,editBox_height,
 				                parent,
@@ -123,7 +187,7 @@ void AuxiliaryWindows::createEditBoxWithDescription(HWND parent, LPTSTR descript
 
 	HWND descWnd = CreateWindow(TEXT("STATIC"),
 		                        description,
-		                        WS_CHILD | WS_VISIBLE | SS_LEFT | SS_EDITCONTROL,
+								WS_CHILD | WS_VISIBLE | SS_LEFT | SS_EDITCONTROL,
 								static_xPos, static_yPos,
 								static_width, static_height,
 		                        parent,
@@ -155,8 +219,12 @@ LRESULT CALLBACK addNewClientWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM 
 			return (INT_PTR)CreateSolidBrush(RGB(217, 236, 249));
 		}
 		//========================================================================
-		staticWnd = GetDlgItem(hwnd, ID_STATIC_DESCRIPTION);
-		if ((HWND)lParam == staticWnd)
+		HWND staticNickname = GetDlgItem(hwnd, ID_DESCRIPTION_NICKNAME);
+		HWND staticLastname = GetDlgItem(hwnd, ID_DESCRIPTION_LASTNAME);
+		HWND staticFirstname = GetDlgItem(hwnd, ID_DESCRIPTION_FIRSTNAME);
+		HWND staticPatronymic = GetDlgItem(hwnd, ID_DESCRIPTION_PATRONYMIC);
+		HWND staticBirthday = GetDlgItem(hwnd, ID_DESCRIPTION_BIRTHDAY);
+		if ((HWND)lParam == staticNickname || (HWND)lParam == staticLastname || (HWND)lParam == staticFirstname || (HWND)lParam == staticPatronymic ||(HWND)lParam == staticBirthday)
 		{
 			HDC hdcStatic = (HDC)wParam;
 			HFONT hFont = CreateFont(16, 0, 0, 0, 0, 0, 0, 0,
