@@ -86,10 +86,10 @@ BOOL ClientView::getInfoAboutSelectedClient()
 	std::vector<SQLTCHAR*>* selectedClient = allClient->getSelectedClient();
 	if (selectedClient->empty())
 	{
-		//EnableWindow(btnToEnable, FALSE);
+		//photoForCurrentClient->loadNullImage();//EnableWindow(btnToEnable, FALSE);
 		//btnToEnable = GetDlgItem(parent, ID_EDIT_CLIENT_BTN);
 		//EnableWindow(btnToEnable, FALSE);
-		//HBITMAP hBitmap = (HBITMAP)LoadImage(NULL, TEXT("D:\\Clients\\Безымянный1.bmp"), IMAGE_BITMAP, imageWidth, imageHeight, LR_LOADFROMFILE);
+	    //HBITMAP hBitmap = (HBITMAP)LoadImage(NULL, TEXT("D:\\Clients\\Безымянный1.bmp"), IMAGE_BITMAP, imageWidth, imageHeight, LR_LOADFROMFILE);
 		//SendMessage(staticWnd, STM_SETIMAGE, (WPARAM)IMAGE_BITMAP, (LPARAM)hBitmap);
 		//ShowWindow(staticWnd, SW_NORMAL);
 		//UpdateWindow(staticWnd);

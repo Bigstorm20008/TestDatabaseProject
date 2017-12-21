@@ -42,7 +42,7 @@ void Client::GetInfoForCurrentClient(std::vector<SQLTCHAR*>* selectedClient)
 	//init parameter array for query with parametr((index of parameter+1) in parameterArray = number of parameter in query)
 	SQLTCHAR* parametrArray[4] = { nickname, lastname, firstname, patronymicname };
 	//query with parameter, where parameter is ?
-	SQLTCHAR* sqlCommand = TEXT("SELECT ImageLocation,ClientID FROM dbo.Clients WHERE (Nickname = ? AND Фамилия = ? AND Имя = ? AND Отчество = ?)");
+	SQLTCHAR* sqlCommand = TEXT("SELECT [ImageLocation],ClientID FROM dbo.Clients WHERE (Nickname = ? AND Фамилия = ? AND Имя = ? AND Отчество = ?)");
 	extern CSqlFramework* sqlODBC;                                                          //allocating in main.cpp for working with database
 	SQLHANDLE statementHandle = sqlODBC->ExecutePrepearedQuery(sqlCommand, parametrArray);  //send query with parameter and parameter array to database
 	Binding* pBinding = sqlODBC->GetBinding();                                              //get bindig with data after execute query
@@ -90,7 +90,7 @@ void Client::LoadMainInfo()
 	if (imageLocation)      //If imageLocation is valid
 	{
 		HWND imageWnd = GetDlgItem(mainWnd, ID_IMAGE_WND);       //get window for image in client view
-		if (_tcscmp(imageLocation, TEXT(" ")) == 0)  
+		if (_tcscmp(imageLocation, TEXT("")) == 0)  
 		{
 			//create standart bitmap and set it
 			HBITMAP hBitmap = (HBITMAP)LoadImage(NULL, TEXT("D:\\Clients\\Безымянный1.bmp"), IMAGE_BITMAP, imageWidth, imageHeight, LR_LOADFROMFILE);
@@ -105,4 +105,31 @@ void Client::LoadMainInfo()
 			UpdateWindow(imageWnd);
 		}
 	}
+}
+
+void Client::addNewClientToDatabase(HWND infoFrom)
+{
+	HWND nicknameWnd = GetDlgItem(infoFrom, ID_EDITBOX_FOR_NICKNAME);
+	nickname = GetDataFromEdit(nicknameWnd);
+	HWND lastNameWnd = GetDlgItem(infoFrom, ID_EDITBOX_FOR_LASTNAME);
+	lastname = GetDataFromEdit(lastNameWnd);
+	HWND firstnameWnd = GetDlgItem(infoFrom, ID_EDITBOX_FOR_FIRSTNAME);
+	firstname = GetDataFromEdit(firstnameWnd);
+	HWND patronymicWnd = GetDlgItem(infoFrom, ID_EDITBOX_FOR_PATRONYMIC);
+	patronymicname = GetDataFromEdit(patronymicWnd);
+	HWND imageLocWnd = GetDlgItem(infoFrom, ID_EDITBOX_FOR_IMAGE);
+	//SendMessage(imageLocWnd, EM_SETREADONLY, (WPARAM)FALSE, 0);
+	imageLocation = GetDataFromEdit(imageLocWnd);
+	HWND birthDayWnd = GetDlgItem(infoFrom, ID_EDITBOX_FOR_BIRTHDAY);
+	birthDay = GetDataFromEdit(birthDayWnd);
+}
+
+
+SQLTCHAR* Client::GetDataFromEdit(HWND textFrom)
+{
+	size_t len = GetWindowTextLength(textFrom);
+	SQLTCHAR* destinationBuf = new SQLTCHAR[len+1];
+	memset(destinationBuf, 0, (len + 1)*sizeof(SQLTCHAR));
+	GetWindowText(textFrom, destinationBuf, len + 1);
+	return destinationBuf;
 }

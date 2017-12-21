@@ -83,8 +83,8 @@ void ClientList::DestroyListView()
 void ClientList::GetDataFromDatabase()
 {
 	extern CSqlFramework* sqlODBC;   //allocating in main.cpp for working with database  
-	//Send query to database for get Nickname,Lastname,Firstname,Patronymic all clients and save statement handle in hsTmt
-	SQLHANDLE hsTmt = sqlODBC->SendQueryToDatabase(TEXT("SELECT Nickname,Фамилия,Имя,Отчество FROM dbo.Clients"));    
+	//Send query to database for get Nickname,Lastname,Firstname,Patronymic all clients and save statement handle in hsTmt  
+	SQLHANDLE hsTmt = sqlODBC->SendQueryToDatabase(TEXT("SELECT Nickname, Фамилия, Имя, Отчество FROM dbo.Clients"));    
 	//get count of columns in dataset
 	numCols = 0;
 	SQLNumResultCols(hsTmt, &numCols);
