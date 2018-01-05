@@ -3,9 +3,8 @@
 
 AutorisationClass::AutorisationClass()
 {	
-	GetDBUserName();                                  //get username from database
-	GetRoleOfCurrentUser();                           //get role of current user from database
-	MyUserInterface interfaceForUser(pRoleMember);    //give control to MyUserInterface class for create GUI
+	pUserName = nullptr;
+	pRoleMember = nullptr;
 }
 
 
@@ -42,8 +41,9 @@ void AutorisationClass::GetDBUserName()
 	
 }
 
-void AutorisationClass::GetRoleOfCurrentUser()
+TCHAR* AutorisationClass::GetRoleOfCurrentUser()
 {
+	GetDBUserName();
 	extern CSqlFramework* sqlODBC;                            //allocating in main.cpp for working with database
 	SQLTCHAR* sqlCommand = TEXT("EXEC sp_helpuser ?");        //SQL query with parameter
 	SQLTCHAR* parametrArray[1] = { pUserName };               //parameter for query (pUsername)
@@ -73,6 +73,7 @@ void AutorisationClass::GetRoleOfCurrentUser()
 		
 	}
 	sqlODBC->FreeBinding(hStmt);    //Free all resource after working
+	return pRoleMember;
 }
 
 

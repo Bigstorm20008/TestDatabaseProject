@@ -10,7 +10,7 @@
 #include <tchar.h>
 
 #include "Binding.h"
-//#include "AutorisationClass.h"
+
 
 using std::cout;
 using std::endl;
@@ -43,6 +43,6 @@ public:
 	Binding* GetBinding(void);
 	void FreeBinding(SQLHANDLE hsTmtHandle);
 	SQLHANDLE ExecutePrepearedQuery(SQLTCHAR* sqlCommand, SQLTCHAR** parametrArray);
-	SQLHANDLE GetStatementHandle(void);
+	SQLHANDLE ExecutePrepearedQuery(SQLTCHAR* sqlCommand, int* parametrArray);
 };
 

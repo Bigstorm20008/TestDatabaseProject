@@ -6,12 +6,7 @@ AuxiliaryWindows::AuxiliaryWindows()
 	extern LPTSTR szClassName;
 	extern LPTSTR szWindowName;
 	mainWnd = FindWindow(szClassName, szWindowName);
-	RECT mainRC;
-	GetClientRect(mainWnd, &mainRC);
-	auxiliaryWndWidth = mainRC.right / 2;
-	auxiliaryWndHeight = mainRC.bottom / 1.5;
-	xPosCentred = mainRC.right / 2 - auxiliaryWndWidth / 2;
-	yPosCentred = mainRC.bottom / 2 - auxiliaryWndHeight / 2;
+	
 }
 
 
@@ -19,8 +14,13 @@ AuxiliaryWindows::~AuxiliaryWindows()
 {
 }
 
-void AuxiliaryWindows::createAddNewClientWnd()
+void AuxiliaryWindows::createAuxiliaryWindow(int width, int height, TCHAR* captionText)
 {
+	RECT mainRC;
+	GetClientRect(mainWnd, &mainRC);
+	int xPos = mainRC.right / 2 - width / 2;
+	int yPos = mainRC.bottom / 2 - height / 2;
+
 	WNDCLASSEX wc;
 	wc.cbClsExtra = wc.cbWndExtra = 0;
 	wc.cbSize = sizeof(WNDCLASSEX);
@@ -29,34 +29,44 @@ void AuxiliaryWindows::createAddNewClientWnd()
 	wc.hIcon = NULL;
 	wc.hIconSm = NULL;
 	wc.hInstance = (HINSTANCE)GetWindowLong(NULL, GWLP_HINSTANCE);
-	wc.lpfnWndProc = addNewClientWndProc;
-	wc.lpszClassName = TEXT("NewClientWnd");
+	wc.lpfnWndProc = AuxiliaryWndProc;
+	wc.lpszClassName = TEXT("AuxiliaryWindow");
 	wc.lpszMenuName = NULL;
 	wc.style = CS_HREDRAW | CS_VREDRAW;
 
 	RegisterClassEx(&wc);
-	
-	HWND hwnd = CreateWindow(TEXT("NewClientWnd"),
-		         TEXT("Добавление нового клиента"),
-				 WS_CHILD|WS_VISIBLE|WS_BORDER,
-				 xPosCentred,yPosCentred,
-				 auxiliaryWndWidth,auxiliaryWndHeight,
-				 mainWnd,
-				 (HMENU)ID_ADD_NEW_CLIENT_WND,
-				 (HINSTANCE)GetWindowLong(NULL, GWLP_HINSTANCE),
-				 NULL);
+
+	auxiliaryWnd = CreateWindow(wc.lpszClassName,
+		                       NULL,
+		                       WS_CHILD | WS_VISIBLE | WS_BORDER | WS_OVERLAPPED,
+		                       xPos, yPos,
+		                       width, height,
+		                       mainWnd,
+		                       NULL,
+		                       (HINSTANCE)GetWindowLong(NULL, GWLP_HINSTANCE),
+		                       NULL);
 
 	HWND staticCaption = CreateWindow(TEXT("STATIC"),
-		                              TEXT("Добавление нового клиента в базу данных"),
-									  WS_CHILD | WS_VISIBLE | SS_CENTER | SS_EDITCONTROL,
-									  0,0,
-									  auxiliaryWndWidth,20,
-									  hwnd,
-									  (HMENU)ID_STATIC_CAPTION,
-									  (HINSTANCE)GetWindowLong(NULL, GWLP_HINSTANCE), 
-									  NULL);
+								      captionText,
+		                              WS_CHILD | WS_VISIBLE | SS_CENTER | SS_EDITCONTROL,
+		                              0, 0,
+		                              width, 20,
+									  auxiliaryWnd,
+		                              (HMENU)ID_STATIC_CAPTION,
+		                              (HINSTANCE)GetWindowLong(NULL, GWLP_HINSTANCE),
+		                              NULL);
+}
+void AuxiliaryWindows::createAddNewClientWnd()
+{
+	RECT mainRC;
+	GetClientRect(mainWnd, &mainRC);
+	int auxiliaryWndWidth = mainRC.right / 2;
+	int auxiliaryWndHeight = static_cast<int>(mainRC.bottom / 1.5);
+
+	createAuxiliaryWindow(auxiliaryWndWidth, auxiliaryWndHeight, TEXT("Добавление нового клиента в базу данных"));
+	
 	RECT hwndRC;
-	GetClientRect(hwnd, &hwndRC);
+	GetClientRect(auxiliaryWnd, &hwndRC);
 	int btnWidth = 150;
 	int btnHeight = 25;
 	int xPos = hwndRC.right - btnWidth - 10;
@@ -66,7 +76,7 @@ void AuxiliaryWindows::createAddNewClientWnd()
 							  WS_CHILD | WS_VISIBLE |BS_DEFPUSHBUTTON,
 							  xPos,yPos,
 							  btnWidth, btnHeight,
-							  hwnd,
+							  auxiliaryWnd,
 							  (HMENU)ID_ADD_TO_BASE_BTN,
 							  (HINSTANCE)GetWindowLong(NULL, GWLP_HINSTANCE), 
 							  NULL);
@@ -74,10 +84,10 @@ void AuxiliaryWindows::createAddNewClientWnd()
 
 	HWND cancelBtn = CreateWindow(TEXT("BUTTON"),
 		                          TEXT("Отмена"),
-		                          WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,
+		                          WS_CHILD  | WS_VISIBLE | BS_DEFPUSHBUTTON,
 		                          xPos, yPos,
 		                          btnWidth, btnHeight,
-		                          hwnd,
+								  auxiliaryWnd,
 								  (HMENU)ID_CANCEL_ADD_TO_BASE_BTN,
 		                          (HINSTANCE)GetWindowLong(NULL, GWLP_HINSTANCE),
 		                          NULL);
@@ -87,39 +97,39 @@ void AuxiliaryWindows::createAddNewClientWnd()
 	int heightForEdit = 20;
 	int offsetBetweenWnd = 10;
 	int descriptionHeight = 15;
-	createEditBoxWithDescription(hwnd, TEXT("Nickname*"), ID_EDITBOX_FOR_NICKNAME, xPosForEdit, yPosForEdit, widthForEdit, heightForEdit);
+	createEditBoxWithDescription(auxiliaryWnd, TEXT("Nickname*"), ID_EDITBOX_FOR_NICKNAME, xPosForEdit, yPosForEdit, widthForEdit, heightForEdit);
 
 	yPosForEdit += heightForEdit + offsetBetweenWnd + descriptionHeight;
-	createEditBoxWithDescription(hwnd, TEXT("Фамилия"), ID_EDITBOX_FOR_LASTNAME, xPosForEdit, yPosForEdit, widthForEdit, heightForEdit);
+	createEditBoxWithDescription(auxiliaryWnd, TEXT("Фамилия"), ID_EDITBOX_FOR_LASTNAME, xPosForEdit, yPosForEdit, widthForEdit, heightForEdit);
 
 	yPosForEdit += heightForEdit + offsetBetweenWnd + descriptionHeight;
-	createEditBoxWithDescription(hwnd, TEXT("Имя"), ID_EDITBOX_FOR_FIRSTNAME, xPosForEdit, yPosForEdit, widthForEdit, heightForEdit);
+	createEditBoxWithDescription(auxiliaryWnd, TEXT("Имя"), ID_EDITBOX_FOR_FIRSTNAME, xPosForEdit, yPosForEdit, widthForEdit, heightForEdit);
 
 	yPosForEdit += heightForEdit + offsetBetweenWnd + descriptionHeight;
-	createEditBoxWithDescription(hwnd, TEXT("Отчество"), ID_EDITBOX_FOR_PATRONYMIC, xPosForEdit, yPosForEdit, widthForEdit, heightForEdit);
+	createEditBoxWithDescription(auxiliaryWnd, TEXT("Отчество"), ID_EDITBOX_FOR_PATRONYMIC, xPosForEdit, yPosForEdit, widthForEdit, heightForEdit);
 
 	yPosForEdit += heightForEdit + offsetBetweenWnd + descriptionHeight;
-	createEditBoxWithDescription(hwnd, TEXT("Дата рождения (чч/мм/гггг)"), ID_EDITBOX_FOR_BIRTHDAY, xPosForEdit, yPosForEdit, widthForEdit, heightForEdit);
+	createEditBoxWithDescription(auxiliaryWnd, TEXT("Дата рождения (чч/мм/гггг)"), ID_EDITBOX_FOR_BIRTHDAY, xPosForEdit, yPosForEdit, widthForEdit, heightForEdit);
 
 	yPosForEdit += heightForEdit + offsetBetweenWnd + descriptionHeight;
-	createComboBoxForClientStatusSelect(hwnd, ID_CB_STATUS_SELECT, xPosForEdit, yPosForEdit, widthForEdit, heightForEdit);
+	createComboBoxForClientStatusSelect(auxiliaryWnd, ID_CB_STATUS_SELECT, xPosForEdit, yPosForEdit, widthForEdit, heightForEdit);
 
 	yPosForEdit += heightForEdit + offsetBetweenWnd + descriptionHeight;
-	createEditBoxWithDescription(hwnd, TEXT("Введите номер телефона"), ID_EDITBOX_FOR_PHONE, xPosForEdit, yPosForEdit, widthForEdit, heightForEdit);
-	HWND editForPhone = GetDlgItem(hwnd, ID_EDITBOX_FOR_PHONE);
+	createEditBoxWithDescription(auxiliaryWnd, TEXT("Введите номер телефона"), ID_EDITBOX_FOR_PHONE, xPosForEdit, yPosForEdit, widthForEdit, heightForEdit);
+	HWND editForPhone = GetDlgItem(auxiliaryWnd, ID_EDITBOX_FOR_PHONE);
 	SetWindowLong(editForPhone, GWL_STYLE, WS_CHILD | WS_VISIBLE | WS_BORDER |ES_NUMBER);
 	RECT rcEdit;
 	GetWindowRect(editForPhone, &rcEdit);
 	POINT tmp;
 	tmp.x = rcEdit.right;
 	tmp.y = rcEdit.bottom;
-	ScreenToClient(hwnd, &tmp);
+	ScreenToClient(auxiliaryWnd, &tmp);
 	int btnPhoneWidth = 105;
 	int btnPhoneHeight = 20;
 	int btnPhoneXPos = tmp.x - btnPhoneWidth;
 	int btnPhoneYPos = tmp.y;
 	HWND addPhoneBtn = CreateWindow(TEXT("BUTTON"), TEXT("Добавить номер"), WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,
-		btnPhoneXPos, btnPhoneYPos, btnPhoneWidth, btnPhoneHeight, hwnd, (HMENU)ID_BTN_ADD_PHONE, (HINSTANCE)GetWindowLong(NULL, GWLP_HINSTANCE), NULL);
+		btnPhoneXPos, btnPhoneYPos, btnPhoneWidth, btnPhoneHeight, auxiliaryWnd, (HMENU)ID_BTN_ADD_PHONE, (HINSTANCE)GetWindowLong(NULL, GWLP_HINSTANCE), NULL);
 	HFONT hFont = CreateFont(15, 0, 0, 0, 0, 0, 0, 0,
 		DEFAULT_CHARSET,
 		0, 0, 0, VARIABLE_PITCH,
@@ -128,17 +138,18 @@ void AuxiliaryWindows::createAddNewClientWnd()
 	
 	yPosForEdit += heightForEdit + offsetBetweenWnd + descriptionHeight + btnPhoneHeight;
 	HWND hList = CreateWindow(TEXT("LISTBOX"), NULL, WS_CHILD | WS_VISIBLE | LBS_STANDARD,
-		xPosForEdit, yPosForEdit, 200, heightForEdit + 10 + 20, hwnd, (HMENU)ID_LB_FOR_PHONENUMBER, (HINSTANCE)GetWindowLong(NULL, GWLP_HINSTANCE), NULL);
-	createDescriptionForControl(hwnd, hList, TEXT("Известные номера телефонов"));
+		xPosForEdit, yPosForEdit, 200, heightForEdit + 10 + 20, auxiliaryWnd, (HMENU)ID_LB_FOR_PHONENUMBER, (HINSTANCE)GetWindowLong(NULL, GWLP_HINSTANCE), NULL);
+	createDescriptionForControl(auxiliaryWnd, hList, TEXT("Известные номера телефонов"));
 
-	createGroupForImgWindow(hwnd, ID_IMAGE_WND_FOR_NEW_CLIENT, ID_BTN_ADD_PHOTO, ID_EDITBOX_FOR_IMAGE);
+	createGroupForImgWindow(auxiliaryWnd, ID_IMAGE_WND_FOR_NEW_CLIENT, ID_BTN_ADD_PHOTO, ID_EDITBOX_FOR_IMAGE);
+
 }
 
 void AuxiliaryWindows::createComboBoxForClientStatusSelect(HWND parent, UINT comboBoxIdentifier, int xPos, int yPos, int width, int height)
 {
 	HWND hWndStatusComboBox = CreateWindow(TEXT("COMBOBOX"),
 		                                   TEXT(""),
-		                                   CBS_DROPDOWNLIST | WS_CHILD | WS_OVERLAPPED | WS_VISIBLE,
+		                                   CBS_DROPDOWNLIST | WS_CHILD  | WS_VISIBLE,
 		                                   xPos, yPos, 
 										   width, height,
 										   parent,
@@ -196,20 +207,15 @@ void AuxiliaryWindows::createGroupForImgWindow(HWND parent, UINT imgWndIdentifie
 	int imageYPos = mainRC.top + 25;
 	HWND imgWnd = CreateWindow(TEXT("STATIC"),
 		NULL,
-		WS_CHILD | WS_VISIBLE | WS_BORDER | SS_BITMAP | SS_NOTIFY,
+		WS_CHILD | WS_VISIBLE | WS_BORDER | SS_BITMAP | SS_CENTERIMAGE,
 		imageXPos,
 		imageYPos,
-		NULL,    //is not required if SS_BITMAP(width set by BITMAP)
-		NULL,    //is not required if SS_BITMAP(height set by BITMAP)
+		imageWidthForWnd,    //is not required if SS_BITMAP(width set by BITMAP)
+		imageHeightforWnd,    //is not required if SS_BITMAP(height set by BITMAP)
 		parent,
 		(HMENU)imgWndIdentifier, 
 		(HINSTANCE)GetWindowLong(NULL, GWLP_HINSTANCE),
 		NULL);
-	//Load empty bitmap and set it
-	HBITMAP hBitmap = (HBITMAP)LoadImage(NULL, TEXT("D:\\Clients\\Безымянный1.bmp"), IMAGE_BITMAP, imageWidth, imageHeight, LR_LOADFROMFILE);
-	SendMessage(imgWnd, STM_SETIMAGE, (WPARAM)IMAGE_BITMAP, (LPARAM)hBitmap);
-	ShowWindow(imgWnd, SW_NORMAL);
-	UpdateWindow(imgWnd);
 
 	RECT rcImgWnd;
 	GetWindowRect(imgWnd, &rcImgWnd);
@@ -285,15 +291,28 @@ void AuxiliaryWindows::createEditBoxWithDescription(HWND parent, LPTSTR descript
 }
 
 
-LRESULT CALLBACK addNewClientWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK AuxiliaryWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 {
+	static HBITMAP hBitmap = (HBITMAP)LoadImage(NULL, TEXT("D:\\Clients\\Безымянный1.bmp"), IMAGE_BITMAP, imageWidth, imageHeight, LR_LOADFROMFILE);
 	switch (msg)
 	{
+	case WM_CREATE:
+	{
+		extern LPTSTR szClassName;
+		extern LPTSTR szWindowName;
+		HWND mainWnd = FindWindow(szClassName, szWindowName);
+		HWND controlPanelWnd = GetDlgItem(mainWnd, ID_CONTROL_PANEL_WND);
+		EnableWindow(controlPanelWnd, FALSE);
+		HWND clientAreaWnd = GetDlgItem(mainWnd, ID_CLIENT_AREA);
+		EnableWindow(clientAreaWnd, FALSE);
+		break;
+	}
 	case WM_CTLCOLORSTATIC:
 	{
 		//=======================================================================
 		HWND staticWnd = GetDlgItem(hwnd, ID_STATIC_CAPTION);
+		HWND imageWnd = GetDlgItem(hwnd, ID_IMAGE_WND_FOR_NEW_CLIENT);
 		if ((HWND)lParam == staticWnd)
 		{
 			HDC hdcStatic = (HDC)wParam;			
@@ -303,6 +322,10 @@ LRESULT CALLBACK addNewClientWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM 
 				L"Time New Romans");
 			SelectObject(hdcStatic, hFont);		
 			SetBkMode(hdcStatic, TRANSPARENT);
+			return (INT_PTR)CreateSolidBrush(RGB(217, 236, 249));
+		}
+		if ((HWND)lParam == imageWnd)
+		{
 			return (INT_PTR)CreateSolidBrush(RGB(217, 236, 249));
 		}
 		else
@@ -327,9 +350,13 @@ LRESULT CALLBACK addNewClientWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM 
 				extern LPTSTR szClassName;
 				extern LPTSTR szWindowName;
 				HWND mainWnd = FindWindow(szClassName, szWindowName);
-				HWND controlPanel = GetDlgItem(mainWnd, ID_CASHIER_PANEL);
-				SendMessage(controlPanel, WM_COMMAND, ID_CLIENT_BTN, 0);
-				UpdateWindow(mainWnd);
+				HWND controlPanelWnd = GetDlgItem(mainWnd, ID_CONTROL_PANEL_WND);
+				EnableWindow(controlPanelWnd, TRUE);
+				HWND clientAreaWnd = GetDlgItem(mainWnd, ID_CLIENT_AREA);
+				EnableWindow(clientAreaWnd, TRUE);
+				DestroyWindow(hwnd);
+				UpdateWindow(clientAreaWnd);
+				SendMessage(mainWnd, INF_OPERATION_COMPLETE, 0, 0);
 				break;
 			}
 			case ID_BTN_ADD_PHONE:
@@ -352,10 +379,22 @@ LRESULT CALLBACK addNewClientWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM 
 			}
 			case ID_ADD_TO_BASE_BTN:
 			{
+				extern LPTSTR szClassName;
+				extern LPTSTR szWindowName;
+				HWND mainWnd = FindWindow(szClassName, szWindowName);
 				Client* newClient = new Client;
-				newClient->addNewClientToDatabase(hwnd);
-				delete newClient;
-				newClient = nullptr;
+				if(newClient->addNewClientToDatabase(hwnd))
+				{	
+					delete newClient;
+					newClient = nullptr;
+					HWND controlPanelWnd = GetDlgItem(mainWnd, ID_CONTROL_PANEL_WND);
+					EnableWindow(controlPanelWnd, TRUE);
+					HWND clientAreaWnd = GetDlgItem(mainWnd, ID_CLIENT_AREA);
+					EnableWindow(clientAreaWnd, TRUE);
+					DestroyWindow(hwnd);
+					UpdateWindow(clientAreaWnd);
+					SendMessage(mainWnd, INF_OPERATION_COMPLETE, 0, 0);					
+				}				
 				break;
 			}
 			case ID_BTN_ADD_PHOTO:
@@ -377,7 +416,7 @@ LRESULT CALLBACK addNewClientWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM 
 				ofn.lpstrDefExt = L"";
 				ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_OVERWRITEPROMPT;
 				GetOpenFileName(&ofn);
-				HBITMAP hBitmap = (HBITMAP)LoadImage(NULL, ofn.lpstrFile, IMAGE_BITMAP, imageWidth, imageHeight, LR_LOADFROMFILE);
+				hBitmap = (HBITMAP)LoadImage(NULL, ofn.lpstrFile, IMAGE_BITMAP, imageWidth, imageHeight, LR_LOADFROMFILE);
 				if (hBitmap)
 				{
 					HWND imgWnd = GetDlgItem(hwnd, ID_IMAGE_WND_FOR_NEW_CLIENT);

@@ -95,6 +95,14 @@ void Binding::AllocateBindings(SQLHANDLE hStmthandle)
 				pThisBinding->pNextBinding = nullptr;             //its a last column, therefore set pNextBinding of current binding to not valid value
 				pTempBinding->pNextBinding = pThisBinding;		  //set finded last element to pThisBinding	 
 			}
+			else
+			{
+				Binding* pThisBinding = new Binding;              //Allocate memory for current column
+				bindingVariables(hStmthandle, i, pThisBinding);   //binding it
+				pThisBinding->pNextBinding = nullptr;             //its a last column, therefore set pNextBinding of current binding to not valid value
+				pNextBinding = pThisBinding;
+			
+			}
 
 		}
 		//=================================================================================================================================
@@ -117,6 +125,11 @@ Binding* Binding::GetNextBinding(void)
 	return pNextBinding;
 }
 
+SQLINTEGER Binding::getIntegerData()
+{
+	return itegerData;
+}
+
 void Binding::FreeBinding(void)
 {
 	Binding* pTempBinding = this;
@@ -132,32 +145,56 @@ void Binding::FreeBinding(void)
 
 void Binding::bindingVariables(SQLHANDLE statementHandle, int index, Binding* pThisBinding)
 {
-	//Get maximum number of characters required to display data from the column
-	SQLRETURN retcode = SQLColAttribute(statementHandle,                //statetment handle
-		                                index,                          //number of row in dataset
-										SQL_DESC_DISPLAY_SIZE,          //maximum number of characters required to display data
-										NULL,                           //is not required if SQL_DESC_DISPLAY_SIZE
-										NULL,                           //is not required if SQL_DESC_DISPLAY_SIZE
-										NULL,                           //is not required if SQL_DESC_DISPLAY_SIZE
-										&pThisBinding->pDescLen);       //here save lenght in characters
 	
-	size_t len = (pThisBinding->pDescLen + 1);          //Compute lenght in characters for save data
-	pThisBinding->pDescription = new TCHAR[len];        //Allocate memory for saving data
 
 	//Get the column label or title
-	retcode = SQLColAttribute(statementHandle,                    //statetment handle
+	SQLRETURN retcode = SQLColAttribute(statementHandle,                    //statetment handle
 		                      index,                              //number of row in dataset
 							  SQL_DESC_LABEL,                     //column label or title
 							  &pThisBinding->columnName,          //here save column label or title
 							  sizeof(pThisBinding->columnName),   //size of pThisBinding->columnName in bytes
 							  NULL,                               //is not required if SQL_DESC_LABEL
 							  NULL);                              //is not required if SQL_DESC_LABEL
-	
+	SQLLEN ssType;
+	retcode = SQLColAttribute(statementHandle,                    //statetment handle
+		                      index,                              //number of row in dataset
+							  SQL_DESC_CONCISE_TYPE,              //column label or title
+		                      NULL,                               //here save column label or title
+		                      0,                                  //size of pThisBinding->columnName in bytes
+		                      NULL,                               //is not required if SQL_DESC_LABEL
+		                      &ssType);                           //is not required if SQL_DESC_LABEL
+
 	//Binding 
-	retcode = SQLBindCol(statementHandle,                   //statetment handle
-		                 index,                             //number of row in dataset
-						 SQL_C_TCHAR,                       //type from convert data
-						 pThisBinding->pDescription,        //here save data from dataset
-						 len*sizeof(TCHAR),                 //size pThisBinding->pDescription in bytes
-						 &pThisBinding->StrLen_or_Ind);     //here save actual size in characters when called SQLFetch() function
+	if ((ssType == SQL_INTEGER) || (ssType == SQL_TINYINT) || (ssType == SQL_SMALLINT))
+	{
+		pThisBinding->pDescription = nullptr;
+		retcode = SQLBindCol(statementHandle,                   //statetment handle
+			index,                             //number of row in dataset
+			SQL_C_LONG,                       //type from convert data
+			&pThisBinding->itegerData,                      //here save data from dataset
+			sizeof(itegerData),                 //size pThisBinding->pDescription in bytes
+			&pThisBinding->StrLen_or_Ind);     //here save actual size in characters when called SQLFetch() function
+	}
+	else
+	{
+		pThisBinding->itegerData = 0;
+		//Get maximum number of characters required to display data from the column
+		retcode = SQLColAttribute(statementHandle,                //statetment handle
+			index,                          //number of row in dataset
+			SQL_DESC_DISPLAY_SIZE,          //maximum number of characters required to display data
+			NULL,                           //is not required if SQL_DESC_DISPLAY_SIZE
+			NULL,                           //is not required if SQL_DESC_DISPLAY_SIZE
+			NULL,                           //is not required if SQL_DESC_DISPLAY_SIZE
+			&pThisBinding->pDescLen);       //here save lenght in characters
+
+		size_t len = (pThisBinding->pDescLen + 1);          //Compute lenght in characters for save data
+		pThisBinding->pDescription = new TCHAR[len];        //Allocate memory for saving data
+
+		retcode = SQLBindCol(statementHandle,                   //statetment handle
+			index,                             //number of row in dataset
+			SQL_C_TCHAR,                       //type from convert data
+			pThisBinding->pDescription,        //here save data from dataset
+			len*sizeof(TCHAR),                 //size pThisBinding->pDescription in bytes
+			&pThisBinding->StrLen_or_Ind);     //here save actual size in characters when called SQLFetch() function
+	}
 }

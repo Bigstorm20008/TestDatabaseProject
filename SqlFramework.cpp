@@ -3,8 +3,6 @@
 //Constructor
 CSqlFramework::CSqlFramework()
 {
-	//Initialize  variables
-
 	
 }
 
@@ -39,6 +37,7 @@ BOOL CSqlFramework::OpenConnection(SQLTCHAR* dataSourceName, SQLTCHAR* username,
 	}
 	case SQL_ERROR:
 	{
+		CloseConnection();
 		return FALSE;
 		break;
 	}
@@ -148,7 +147,8 @@ SQLHANDLE CSqlFramework::ExecutePrepearedQuery(SQLTCHAR* sqlCommand, SQLTCHAR** 
 		extract_error(L"Ошибка подготовки запроса", hStmt, SQL_HANDLE_STMT);
 	SQLSMALLINT   DataType, DecimalDigits, Nullable;
 	SQLUINTEGER   ParamSize;
-	SQLINTEGER iNts = SQL_NTS;
+	SQLLEN iNts = SQL_NTS;
+	SQLLEN null = SQL_NULL_DATA;
 	SQLSMALLINT numParams;
 	SQLNumParams(hStmt, &numParams);
 
@@ -156,10 +156,20 @@ SQLHANDLE CSqlFramework::ExecutePrepearedQuery(SQLTCHAR* sqlCommand, SQLTCHAR** 
 	{
 		for (int i = 0; i < numParams; i++)
 		{
-			SQLDescribeParam(hStmt, i + 1, &DataType, &ParamSize, &DecimalDigits, &Nullable);
-			SQLBindParameter(hStmt, i + 1, SQL_PARAM_INPUT, SQL_C_TCHAR, DataType, ParamSize,
-				DecimalDigits, parametrArray[i], (ParamSize)*sizeof(SQLTCHAR),
-				&iNts);
+			if (parametrArray[i])
+			{
+				SQLDescribeParam(hStmt, i + 1, &DataType, &ParamSize, &DecimalDigits, &Nullable);
+				SQLBindParameter(hStmt, i + 1, SQL_PARAM_INPUT, SQL_C_TCHAR, DataType, ParamSize,
+					DecimalDigits, parametrArray[i], (ParamSize)*sizeof(SQLTCHAR),
+					&iNts);
+			}
+			else
+			{
+				SQLDescribeParam(hStmt, i + 1, &DataType, &ParamSize, &DecimalDigits, &Nullable);
+				SQLBindParameter(hStmt, i + 1, SQL_PARAM_INPUT, SQL_C_TCHAR, DataType, ParamSize,
+					DecimalDigits, parametrArray[i], (ParamSize)*sizeof(SQLTCHAR),
+					&null);
+			}
 		}
 
 	}
@@ -175,7 +185,51 @@ SQLHANDLE CSqlFramework::ExecutePrepearedQuery(SQLTCHAR* sqlCommand, SQLTCHAR** 
 }
 
 
-SQLHANDLE CSqlFramework::GetStatementHandle(void)
+SQLHANDLE CSqlFramework::ExecutePrepearedQuery(SQLTCHAR* sqlCommand, int* parametrArray)
 {
-	return &hStmt;
+	SQLAllocHandle(SQL_HANDLE_STMT, hDbc, &hStmt);
+	SQLRETURN retcode = SQLPrepare(hStmt, sqlCommand, SQL_NTS);
+	if (retcode == SQL_ERROR)
+		extract_error(L"Ошибка подготовки запроса", hStmt, SQL_HANDLE_STMT);
+	SQLSMALLINT   DataType, DecimalDigits, Nullable;
+	SQLUINTEGER   ParamSize;
+	SQLLEN iNts = SQL_NTS;
+	SQLLEN null = SQL_NULL_DATA;
+	SQLSMALLINT numParams;
+	SQLNumParams(hStmt, &numParams);
+
+	if (numParams)
+	{
+		for (int i = 0; i < numParams; i++)
+		{
+			if (parametrArray[i])
+			{
+				retcode = SQLDescribeParam(hStmt, i + 1, &DataType, &ParamSize, &DecimalDigits, &Nullable);
+				if (retcode == SQL_ERROR)
+					extract_error(TEXT("Ошибка выполнения запроса"), hStmt, SQL_HANDLE_STMT);
+				retcode = SQLBindParameter(hStmt, i + 1, SQL_PARAM_INPUT, SQL_C_LONG, DataType, ParamSize,
+					DecimalDigits, &parametrArray[i], (ParamSize)*sizeof(SQLTCHAR),
+					&iNts);
+				if (retcode == SQL_ERROR)
+					extract_error(L"Ошибка выполнения запроса", hStmt, SQL_HANDLE_STMT);
+			}
+			else
+			{
+				retcode = SQLDescribeParam(hStmt, i + 1, &DataType, &ParamSize, &DecimalDigits, &Nullable);
+				retcode = SQLBindParameter(hStmt, i + 1, SQL_PARAM_INPUT, SQL_C_LONG, DataType, ParamSize,
+					DecimalDigits, &parametrArray[i], (ParamSize)*sizeof(SQLTCHAR),
+					&null);
+			}
+		}
+
+	}
+	retcode = SQLExecute(hStmt);
+	if (retcode == SQL_ERROR)
+		extract_error(L"Ошибка выполнения запроса", hStmt, SQL_HANDLE_STMT);
+
+
+	pBinding = new Binding;
+	pBinding->AllocateBindings(hStmt);
+	return hStmt;
 }
+

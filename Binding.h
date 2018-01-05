@@ -10,12 +10,12 @@ class Binding
 {
 private:
 
-	TCHAR* pDescription;         //description for current binding
+	SQLTCHAR* pDescription;         //description for current binding
 	SQLLEN pDescLen;             //maximum lenght for current column
 	SQLLEN StrLen_or_Ind;        //actual lenght for current description(initializing when use SQLFetch())
 	Binding* pNextBinding;       //pointer to next Binding
 	SQLTCHAR columnName[250];    //column name for current binding
-	
+	int itegerData;
 	void bindingVariables(SQLHANDLE statementHandle, int index, Binding* pThisBinding);
 	
 public:
@@ -25,6 +25,7 @@ public:
 	TCHAR* GetDescription(void);
 	//get column name for current column in dataset. Value in columnName is valid after called SQLFetch()
 	TCHAR* GetColumnName(void);
+	SQLINTEGER getIntegerData();
 	//get pointer to pNextBinding
 	Binding* GetNextBinding(void);
 	//this function free all binding after using data. its called from CSqlFramework class.Other class must not call this function.

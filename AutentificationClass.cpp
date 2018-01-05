@@ -104,10 +104,30 @@ LRESULT CALLBACK AutentificationProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
 		SendMessage(hPass, WM_SETFONT, (WPARAM)hFont, NULL);
 
 		//Create buttons(using class MyButton)
-		MyButton okBtn;
-		okBtn.CreateButton(hWnd, ID_OKBTN, TEXT("Продолжить"), 200, 125, 90, 20);
-		MyButton cancelBtn;
-		cancelBtn.CreateButton(hWnd, ID_CANCELBTN, TEXT("Отмена"), 100, 125, 90, 20);
+		HWND continueBtn = CreateWindow(TEXT("BUTTON"),
+			TEXT("Подключиться"),
+			WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,
+			185,
+			125,
+			110,
+			20,
+			hWnd,
+			(HMENU)ID_OKBTN,  //defined in "COnstants.h"
+			(HINSTANCE)GetWindowLong(NULL, GWLP_HINSTANCE),
+			NULL);
+		SendMessage(continueBtn, WM_SETFONT, (WPARAM)hFont, NULL);
+		HWND cancelBtn = CreateWindow(TEXT("BUTTON"),
+			TEXT("Отмена"),
+			WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,
+			90,
+			125,
+			90,
+			20,
+			hWnd,
+			(HMENU)ID_CANCELBTN,  //defined in "COnstants.h"
+			(HINSTANCE)GetWindowLong(NULL, GWLP_HINSTANCE),
+			NULL);
+		SendMessage(cancelBtn, WM_SETFONT, (WPARAM)hFont, NULL);
 		break;
 	}
 
@@ -139,7 +159,10 @@ LRESULT CALLBACK AutentificationProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM 
 			if (sqlODBC->OpenConnection(TEXT("Malinka"), userName, pass))  //Open connection to datasource "Malinka", using userName and pass
 			{
 				//if connection is open.....
-				AutorisationClass autorisation;  //give control to AutorizationClass   
+				extern LPTSTR szClassName;
+				extern LPTSTR szWindowName;
+				HWND mainWnd = FindWindow(szClassName, szWindowName);
+				SendMessage(mainWnd, INF_DATABASE_CONNECTED, 0, 0);
 				DestroyWindow(hWnd);             //and destroy autentification window
 				
 			}

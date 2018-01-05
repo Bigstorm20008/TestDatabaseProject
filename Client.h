@@ -5,6 +5,7 @@
 #include <vector>
 #include "Constants.h"
 
+
 class Client
 {
 private:
@@ -14,20 +15,37 @@ private:
 	SQLTCHAR* firstname;              //client firstname
 	SQLTCHAR* patronymicname;         //client patronymicname
 	SQLTCHAR* imageLocation;          //image location on HD for current client
-	SQLTCHAR* birthDay;
+	SQLTCHAR* birthDay;               
 	SQLTCHAR* status;
+	SQLTCHAR* clientState;
+	int cashInSum;
+	int cashOutSum;
+	int result;
+	int drop;
+	std::vector<SQLTCHAR*>* phoneNumbers;
 
+	void deleteAllPhoneNumbers();
 	void FillAllClientField(Binding*pBinding);    //function fill data about current client
-	void LoadMainInfo();                          //load main info about client to Client View
 	SQLTCHAR* GetDataFromEdit(HWND textFrom);
+	void getPhoneNumbersFromDatabase();
+	void getCustomerFinancialStatistics();
+	Client& Client::operator=(const Client& client);
 public:
-
+	SQLTCHAR* getLastname() const;
+	SQLTCHAR* getFirstname() const;
+	SQLTCHAR* getPatronymic() const;
+	SQLTCHAR* getBirthDay() const;
+	SQLTCHAR* getStatus() const;
+	int getDrop() const;
+	int getResult() const;
+	std::vector<SQLTCHAR*>* getPhoneNumbers() const;
 	void FreeAllField();    //clear all field of Client class
-
+	SQLTCHAR* getImageLocation();
 	//Function send query with patameter to database and set field of Client class
 	//After that call LoadMainInfo() function for update info about client
-	void GetInfoForCurrentClient(std::vector<SQLTCHAR*>* selectedClient); 
-	void addNewClientToDatabase(HWND infoFrom);
+	void GetInfoForCurrentClient();
+	void saveDataFromList(TCHAR* columnName, TCHAR* dataFromList);
+	BOOL addNewClientToDatabase(HWND infoFrom);
 	Client();  //constructor
 	~Client(); //destructor
 };

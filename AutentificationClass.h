@@ -5,7 +5,7 @@
 #include <Windows.h>   
 
 //include classes
-#include "MyButton.h"
+
 #include "SqlFramework.h"
 #include "AutorisationClass.h"
 
