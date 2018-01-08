@@ -7,6 +7,7 @@
 #include "Client.h"
 #include <commctrl.h>
 
+
 class AuxiliaryWindows
 {
 	HWND mainWnd;
@@ -19,6 +20,7 @@ class AuxiliaryWindows
 	void createGroupForImgWindow(HWND parent, UINT imgWndIdentifier, UINT btnIdentifier, UINT editIdentifier);
 public:
 	void destroyAuxiliaryWindow();
+	void createCashInCashOutWindow(Client* currentClient, UINT btnIdentifier);
 	void createAddNewClientWnd();
 	AuxiliaryWindows();
 	~AuxiliaryWindows();

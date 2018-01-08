@@ -32,7 +32,7 @@ void AuxiliaryWindows::createAuxiliaryWindow(int width, int height, TCHAR* capti
 	wc.lpfnWndProc = AuxiliaryWndProc;
 	wc.lpszClassName = TEXT("AuxiliaryWindow");
 	wc.lpszMenuName = NULL;
-	wc.style = CS_HREDRAW | CS_VREDRAW;
+	wc.style =  CS_HREDRAW | CS_VREDRAW;
 
 	RegisterClassEx(&wc);
 
@@ -88,7 +88,7 @@ void AuxiliaryWindows::createAddNewClientWnd()
 		                          xPos, yPos,
 		                          btnWidth, btnHeight,
 								  auxiliaryWnd,
-								  (HMENU)ID_CANCEL_ADD_TO_BASE_BTN,
+								  (HMENU)ID_CANCEL_AUXILIARY_BTN,
 		                          (HINSTANCE)GetWindowLong(NULL, GWLP_HINSTANCE),
 		                          NULL);
 	int xPosForEdit = 10;
@@ -125,7 +125,7 @@ void AuxiliaryWindows::createAddNewClientWnd()
 	tmp.y = rcEdit.bottom;
 	ScreenToClient(auxiliaryWnd, &tmp);
 	int btnPhoneWidth = 105;
-	int btnPhoneHeight = 20;
+	int btnPhoneHeight = 22;
 	int btnPhoneXPos = tmp.x - btnPhoneWidth;
 	int btnPhoneYPos = tmp.y;
 	HWND addPhoneBtn = CreateWindow(TEXT("BUTTON"), TEXT("Добавить номер"), WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,
@@ -145,6 +145,157 @@ void AuxiliaryWindows::createAddNewClientWnd()
 
 }
 
+
+void AuxiliaryWindows::createCashInCashOutWindow(Client* currentClient,UINT btnIdentifier)
+{
+	TCHAR* btnTitle = nullptr;
+	UINT cashInCashOutIdentifier;
+	if (btnIdentifier == ID_CASH_IN_BTN)
+	{
+		TCHAR* text = TEXT("Cash In");
+		size_t len = _tcslen(text) + 1;
+		btnTitle = new TCHAR[len];
+		memset(btnTitle, 0, len*sizeof(TCHAR));
+		_tcscpy_s(btnTitle, len, text);
+		cashInCashOutIdentifier = ID_CASH_IN__AUXILIARY_BTN;
+
+	}
+	if (btnIdentifier == ID_CASH_OUT_BTN)
+	{
+		TCHAR* text = TEXT("Cash Out");
+		size_t len = _tcslen(text) + 1;
+		btnTitle = new TCHAR[len];
+		memset(btnTitle, 0, len*sizeof(TCHAR));
+		_tcscpy_s(btnTitle, len, text);
+		cashInCashOutIdentifier = ID_CASH_OUT_AUXILIARY_BTN;
+
+	}
+	RECT mainRC;
+	GetClientRect(mainWnd, &mainRC);
+	int auxiliaryWndWidth = mainRC.right / 2;
+	int auxiliaryWndHeight = static_cast<int>(mainRC.bottom / 3);
+
+	createAuxiliaryWindow(auxiliaryWndWidth, auxiliaryWndHeight, btnTitle);
+
+	RECT parentRC;
+	GetClientRect(auxiliaryWnd, &parentRC);
+	int btnWidth = 100;
+	int btnHeight = 25;
+	int btnXPos = parentRC.right - btnWidth - offsetBetweenWindow;
+	int btnYPos = parentRC.bottom - btnHeight - offsetBetweenWindow;
+	CreateWindow(TEXT("BUTTON"),
+		         btnTitle,
+		         WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,
+		         btnXPos, btnYPos,
+		         btnWidth, btnHeight,
+		         auxiliaryWnd,
+				 (HMENU)cashInCashOutIdentifier,
+		         (HINSTANCE)GetWindowLong(NULL, GWLP_HINSTANCE),
+		         NULL);
+	delete[]btnTitle;
+	btnTitle = nullptr;
+
+	btnXPos -= btnWidth + offsetBetweenWindow;
+	CreateWindow(TEXT("BUTTON"),
+		         TEXT("Отмена"),
+		         WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,
+		         btnXPos, btnYPos,
+		         btnWidth, btnHeight,
+		         auxiliaryWnd,
+		         (HMENU)ID_CANCEL_AUXILIARY_BTN,
+		         (HINSTANCE)GetWindowLong(NULL, GWLP_HINSTANCE),
+		         NULL);
+
+	int descriptionHeight = 15;
+	int editBox_width = 150;
+	int editBox_height = 20;
+	int editBox_xPos = parentRC.right - editBox_width - offsetBetweenWindow;
+	int editBox_yPos = parentRC.bottom/2 - offsetBetweenWindow;
+	createEditBoxWithDescription(auxiliaryWnd, TEXT("Доллары"), ID_EDITBOX_FOR_DOLLARS_VALUE, editBox_xPos, editBox_yPos, editBox_width, editBox_height);
+	HWND editControl = GetDlgItem(auxiliaryWnd, ID_EDITBOX_FOR_DOLLARS_VALUE);
+	SetWindowLong(editControl, GWL_STYLE, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER);
+
+	editBox_yPos += editBox_height + offsetBetweenWindow + descriptionHeight;
+	createEditBoxWithDescription(auxiliaryWnd, TEXT("Гривны"), ID_EDITBOX_FOR_GRIVNA_VALUE, editBox_xPos, editBox_yPos, editBox_width, editBox_height);
+	editControl = GetDlgItem(auxiliaryWnd, ID_EDITBOX_FOR_GRIVNA_VALUE);
+	SetWindowLong(editControl, GWL_STYLE, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_NUMBER);
+
+	int captionHeight = 20;
+	int imageXPos = 0;
+	int imageYPos = captionHeight;
+	int imageWidthForWnd = imageWidth / 1.5;
+	int imageHeightforWnd = imageHeight / 1.5;
+	HWND imgWindow = CreateWindow(TEXT("STATIC"),
+		                          NULL,
+								  WS_CHILD | WS_BORDER | SS_BITMAP,
+		                          imageXPos,
+		                          imageYPos,
+								  imageWidthForWnd,    //is not required if SS_BITMAP(width set by BITMAP)
+								  imageHeightforWnd,    //is not required if SS_BITMAP(height set by BITMAP)
+								  auxiliaryWnd,
+								  (HMENU)ID_IMAGE_CASHIN_CASHOUT_WND,
+		                          (HINSTANCE)GetWindowLong(NULL, GWLP_HINSTANCE),
+		                          NULL);
+	HBITMAP hBitmap = (HBITMAP)LoadImage(NULL, currentClient->getImageLocation(), IMAGE_BITMAP, imageWidthForWnd, imageHeightforWnd, LR_LOADFROMFILE);
+	SendMessage(imgWindow, STM_SETIMAGE, (WPARAM)IMAGE_BITMAP, (LPARAM)hBitmap);
+	ShowWindow(imgWindow, SW_NORMAL);
+
+	int descForPersonXPos = imageXPos + imageWidthForWnd + offsetBetweenWindow;
+	int descForPersonYPos = imageYPos;
+	int descForPersonWidth = 150;
+	int descForPersonHeight = 25;
+	HWND nickNameWnd = CreateWindow(TEXT("STATIC"),
+		                            currentClient->getNickname(),
+		                            WS_CHILD | WS_VISIBLE,
+									descForPersonXPos,
+									descForPersonYPos,
+									descForPersonWidth,
+									descForPersonHeight,
+		                            auxiliaryWnd,
+		                            NULL,
+		                            (HINSTANCE)GetWindowLong(NULL, GWLP_HINSTANCE),
+		                            NULL);
+	
+	
+	descForPersonYPos += descForPersonHeight;
+	HWND lastNameWnd = CreateWindow(TEXT("STATIC"),
+		                            currentClient->getLastname(),
+		                            WS_CHILD | WS_VISIBLE,
+		                            descForPersonXPos,
+		                            descForPersonYPos,
+		                            descForPersonWidth,
+		                            descForPersonHeight,
+		                            auxiliaryWnd,
+		                            NULL,
+		                            (HINSTANCE)GetWindowLong(NULL, GWLP_HINSTANCE),
+		                            NULL);
+
+	descForPersonYPos += descForPersonHeight;
+	HWND firstNameWnd = CreateWindow(TEXT("STATIC"),
+		                             currentClient->getFirstname(),
+		                             WS_CHILD | WS_VISIBLE,
+		                             descForPersonXPos,
+		                             descForPersonYPos,
+		                             descForPersonWidth,
+		                             descForPersonHeight,
+		                             auxiliaryWnd,
+		                             NULL,
+		                             (HINSTANCE)GetWindowLong(NULL, GWLP_HINSTANCE),
+		                             NULL);
+
+	descForPersonYPos += descForPersonHeight;
+	HWND patronymicNameWnd = CreateWindow(TEXT("STATIC"),
+		                                  currentClient->getPatronymic(),
+		                                  WS_CHILD | WS_VISIBLE,
+		                                  descForPersonXPos,
+		                                  descForPersonYPos,
+		                                  descForPersonWidth,
+		                                  descForPersonHeight,
+		                                  auxiliaryWnd,
+		                                  NULL,
+		                                  (HINSTANCE)GetWindowLong(NULL, GWLP_HINSTANCE),
+		                                  NULL);
+}
 void AuxiliaryWindows::createComboBoxForClientStatusSelect(HWND parent, UINT comboBoxIdentifier, int xPos, int yPos, int width, int height)
 {
 	HWND hWndStatusComboBox = CreateWindow(TEXT("COMBOBOX"),
@@ -194,6 +345,12 @@ void AuxiliaryWindows::createDescriptionForControl(HWND parentOfControl, HWND co
 		                        NULL,
 		                        (HINSTANCE)GetWindowLong(NULL, GWLP_HINSTANCE),
 		                        NULL);
+
+	HFONT hFont = CreateFont(16, 0, 0, 0, 0, 0, 0, 0,
+		DEFAULT_CHARSET,
+		0, 0, 0, VARIABLE_PITCH,
+		L"Time New Romans");
+	SendMessage(descWnd, WM_SETFONT, (WPARAM)hFont, (LPARAM)FALSE);
 }
 
 void AuxiliaryWindows::createGroupForImgWindow(HWND parent, UINT imgWndIdentifier, UINT btnIdentifier, UINT editIdentifier)
@@ -225,7 +382,7 @@ void AuxiliaryWindows::createGroupForImgWindow(HWND parent, UINT imgWndIdentifie
 	tmp.y = rcImgWnd.bottom;
 	ScreenToClient(parent, &tmp);
 	int btnPhotoWidth = 150;
-	int btnPhotoHeight = 20;
+	int btnPhotoHeight = 22;
 	int btnPhotoXPos = tmp.x - btnPhotoWidth;
 	int btnPhotoYPos = tmp.y;
 	HWND addPhotoBtn = CreateWindow(TEXT("BUTTON"), TEXT("Указать расположение"), WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,
@@ -299,6 +456,7 @@ LRESULT CALLBACK AuxiliaryWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 	{
 	case WM_CREATE:
 	{
+		
 		extern LPTSTR szClassName;
 		extern LPTSTR szWindowName;
 		HWND mainWnd = FindWindow(szClassName, szWindowName);
@@ -313,6 +471,7 @@ LRESULT CALLBACK AuxiliaryWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 		//=======================================================================
 		HWND staticWnd = GetDlgItem(hwnd, ID_STATIC_CAPTION);
 		HWND imageWnd = GetDlgItem(hwnd, ID_IMAGE_WND_FOR_NEW_CLIENT);
+		HWND cashImageWnd = GetDlgItem(hwnd, ID_IMAGE_CASHIN_CASHOUT_WND);
 		if ((HWND)lParam == staticWnd)
 		{
 			HDC hdcStatic = (HDC)wParam;			
@@ -328,6 +487,10 @@ LRESULT CALLBACK AuxiliaryWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 		{
 			return (INT_PTR)CreateSolidBrush(RGB(217, 236, 249));
 		}
+		/*if ((HWND)lParam == cashImageWnd)
+		{
+			return (INT_PTR)FALSE;
+		}*/
 		else
 		{
 			HDC hdcStatic = (HDC)wParam;
@@ -345,7 +508,7 @@ LRESULT CALLBACK AuxiliaryWndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPa
 	{
 		switch (LOWORD(wParam))
 		{
-			case ID_CANCEL_ADD_TO_BASE_BTN:
+			case ID_CANCEL_AUXILIARY_BTN:
 			{
 				extern LPTSTR szClassName;
 				extern LPTSTR szWindowName;

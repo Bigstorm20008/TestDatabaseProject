@@ -11,7 +11,7 @@ Client::Client()
 	imageLocation = nullptr;
 	birthDay = nullptr;
 	phoneNumbers = nullptr;
-	clientState = nullptr;
+	//clientState = nullptr;
 }
 
 
@@ -63,11 +63,11 @@ void Client::FreeAllField()
 		delete phoneNumbers;
 		phoneNumbers = nullptr;
 	}
-	if (clientState)
-	{
-		delete clientState;
-		clientState = nullptr;
-	}
+	//if (clientState)
+	//{
+		//delete clientState;
+		//clientState = nullptr;
+	//}
 }
 
 void Client::getPhoneNumbersFromDatabase()
@@ -114,7 +114,7 @@ void Client::GetInfoForCurrentClient()
 	//init parameter array for query with parametr((index of parameter+1) in parameterArray = number of parameter in query)
 	SQLTCHAR* parametrArray[] = { nickname, lastname, firstname, patronymicname };
 	//query with parameter, where parameter is ?
-	SQLTCHAR* sqlCommand = TEXT("SELECT [ImageLocation],Clients.ClientID, [Status].Статус, [Дата рождения] = (CASE WHEN [Дата рождения] IS NULL THEN '' ELSE CONVERT(varchar,[Дата рождения]) END) FROM dbo.Clients join [Status] on  [Status].StatusID = Clients.Статус WHERE (Nickname = ? AND Фамилия = ? AND Имя = ? AND Отчество = ?)");
+	SQLTCHAR* sqlCommand = TEXT("SELECT [ImageLocation],Clients.ClientID, [Status].Статус, ClientState, [Дата рождения] = (CASE WHEN [Дата рождения] IS NULL THEN '' ELSE CONVERT(varchar,[Дата рождения]) END) FROM dbo.Clients join [Status] on  [Status].StatusID = Clients.Статус WHERE (Nickname = ? AND Фамилия = ? AND Имя = ? AND Отчество = ?)");
 	extern CSqlFramework* sqlODBC;                                                          //allocating in main.cpp for working with database
 	SQLHANDLE statementHandle = sqlODBC->ExecutePrepearedQuery(sqlCommand, parametrArray);  //send query with parameter and parameter array to database
 	Binding* pBinding = sqlODBC->GetBinding();                                              //get bindig with data after execute query
@@ -142,6 +142,19 @@ void  Client::FillAllClientField(Binding*pBinding)
 			imageLocation = new SQLTCHAR[len];                                        //allocate memory for saving
 			memset(imageLocation, 0, len*sizeof(SQLTCHAR));                           //fill pointer by /0
 			_tcscat_s(imageLocation, len, tempBinding->GetDescription());             //copy data from binding to imageLocation
+			tempBinding = tempBinding->GetNextBinding();                              //set to next element for continue 
+			continue;
+		}
+		if (_tcscmp(tempBinding->GetColumnName(), TEXT("ClientState")) == 0)   //if column name is "ClientState"
+		{
+			if (_tcscmp(tempBinding->GetDescription(), TEXT("0")) == 0)
+			{
+				clientState = FALSE;
+			}
+			else
+			{
+				clientState = TRUE;
+			}
 			tempBinding = tempBinding->GetNextBinding();                              //set to next element for continue 
 			continue;
 		}
@@ -183,6 +196,37 @@ void  Client::FillAllClientField(Binding*pBinding)
 		tempBinding = tempBinding->GetNextBinding();  //set to next element for continue
 	}
 }
+
+void Client::changeClientState(UINT exitOrEntranceBtnIdentifier)
+{
+	extern CSqlFramework* sqlODBC;   //allocating in main.cpp for working with database
+	//init parameter array for query with parametr((index of parameter+1) in parameterArray = number of parameter in query)
+	SQLTCHAR* parametrArray[] = { nickname, lastname, firstname, patronymicname };
+	//query with parameter, where parameter is ?
+	if (exitOrEntranceBtnIdentifier == ID_EXIT_FROM_CASINO_BTN)
+	{
+		SQLTCHAR* sqlCommand = TEXT("UPDATE [dbo].[Clients] SET [ClientState] = 'False' WHERE (Nickname = ? AND Фамилия = ? AND Имя = ? AND Отчество = ?)");
+		SQLHANDLE statementHandle = sqlODBC->ExecutePrepearedQuery(sqlCommand, parametrArray);  //send query with parameter and parameter array to database
+		clientState = FALSE;
+		sqlODBC->FreeBinding(statementHandle);
+	}
+	if (exitOrEntranceBtnIdentifier == ID_ENTRANCE_IN_CASINO_BTN)
+	{
+		if (clientState == TRUE)
+		{
+			MessageBox(NULL, TEXT("Клиент уже в казино"), TEXT("Информация"), MB_OK);
+		}
+		else
+		{
+			SQLTCHAR* sqlCommand = TEXT("UPDATE [dbo].[Clients] SET [ClientState] = 'True' WHERE (Nickname = ? AND Фамилия = ? AND Имя = ? AND Отчество = ?)");
+			SQLHANDLE statementHandle = sqlODBC->ExecutePrepearedQuery(sqlCommand, parametrArray);  //send query with parameter and parameter array to database
+			clientState = TRUE;
+			sqlODBC->FreeBinding(statementHandle);
+		}
+	}
+	
+}
+
 
 BOOL Client::addNewClientToDatabase(HWND infoFrom)
 {
@@ -280,7 +324,10 @@ void Client::saveDataFromList(TCHAR* columnName, TCHAR* dataFromList)
 	}
 }
 
-
+SQLTCHAR* Client::getNickname() const
+{
+	return nickname;
+}
 SQLTCHAR* Client::getLastname() const
 {
 	return lastname;

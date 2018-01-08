@@ -82,7 +82,7 @@ void CButtonsForViews::createCashViewButtons()
 		xPos, yPos,
 		btnWidth, btnHeight,
 		parentForButtons,
-		NULL,
+		(HMENU)ID_CASH_OUT_BTN,
 		reinterpret_cast<HINSTANCE>(GetWindowLong(NULL, GWLP_HINSTANCE)),
 		NULL);
 	
@@ -94,7 +94,7 @@ void CButtonsForViews::createCashViewButtons()
 		xPos, yPos,
 		btnWidth, btnHeight,
 		parentForButtons,
-		NULL,
+		(HMENU)ID_EXIT_FROM_CASINO_BTN,
 		reinterpret_cast<HINSTANCE>(GetWindowLong(NULL, GWLP_HINSTANCE)),
 		NULL);
 
@@ -132,14 +132,24 @@ void CButtonsForViews::createClientViewButtons()
 	HWND listWnd = GetDlgItem(parentWindow, ID_LISTVIEW_WND);
 	createParentWindowForButtons(listWnd);
 	addClientButton = CreateWindow(TEXT("BUTTON"),
-		TEXT("Добавить клиента"),
-		WS_CHILD | WS_BORDER | BS_DEFPUSHBUTTON | WS_VISIBLE | WS_DISABLED,
-		10, 10,
-		200, 25,
-		parentForButtons,
-		NULL,
-		reinterpret_cast<HINSTANCE>(GetWindowLong(NULL, GWLP_HINSTANCE)),
-		NULL);
+		                           TEXT("Добавить клиента"),
+		                           WS_CHILD | WS_BORDER | BS_DEFPUSHBUTTON | WS_VISIBLE,
+		                           10, 10,
+		                           200, 25,
+		                           parentForButtons,
+		                           (HMENU)ID_ADD_CLIENT_TO_DATABASE,
+		                           reinterpret_cast<HINSTANCE>(GetWindowLong(NULL, GWLP_HINSTANCE)),
+		                           NULL);
+
+	clientInButton =  CreateWindow(TEXT("BUTTON"),
+		                           TEXT("Вход в казино"),
+		                           WS_CHILD | WS_BORDER | BS_DEFPUSHBUTTON | WS_VISIBLE | WS_DISABLED,
+		                           10, 40,
+		                           200, 25,
+		                           parentForButtons,
+								   (HMENU)ID_ENTRANCE_IN_CASINO_BTN,
+		                           reinterpret_cast<HINSTANCE>(GetWindowLong(NULL, GWLP_HINSTANCE)),
+		                           NULL);
 	
 	ShowWindow(parentForButtons, SW_NORMAL);
 }
@@ -187,9 +197,9 @@ void CButtonsForViews::enableButtonsIfPersonSelected()
 	{
 		EnableWindow(clientOutButton, TRUE);
 	}
-	if (addClientButton)
+	if (clientInButton)
 	{
-		EnableWindow(addClientButton, TRUE);
+		EnableWindow(clientInButton, TRUE);
 	}
 }
 
@@ -207,9 +217,9 @@ void CButtonsForViews::disableButtonsIfNoSelected()
 	{
 		EnableWindow(clientOutButton, FALSE);
 	}
-	if (addClientButton)
+	if (clientInButton)
 	{
-		EnableWindow(addClientButton, FALSE);
+		EnableWindow(clientInButton, FALSE);
 	}
 }
 
@@ -228,6 +238,26 @@ LRESULT CALLBACK ParentForButtonsProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 				case ID_CASH_IN_BTN:
 				{
 					SendMessage(mainAppWindow, WM_COMMAND, ID_CASH_IN_BTN, 0);
+					break;
+				}
+				case ID_CASH_OUT_BTN:
+				{
+					SendMessage(mainAppWindow, WM_COMMAND, ID_CASH_OUT_BTN, 0);
+					break;
+				}
+				case ID_EXIT_FROM_CASINO_BTN:
+				{
+					SendMessage(mainAppWindow, WM_COMMAND, ID_EXIT_FROM_CASINO_BTN, 0);
+					break;
+				}
+				case ID_ENTRANCE_IN_CASINO_BTN:
+				{
+					SendMessage(mainAppWindow, WM_COMMAND, ID_ENTRANCE_IN_CASINO_BTN, 0);
+					break;
+				}
+				case ID_ADD_CLIENT_TO_DATABASE:
+				{
+					SendMessage(mainAppWindow, WM_COMMAND, ID_ADD_CLIENT_TO_DATABASE, 0);
 					break;
 				}
 				default:

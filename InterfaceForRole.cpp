@@ -84,6 +84,11 @@ CInterfaceForRole::~CInterfaceForRole()
 		delete buttons;
 		buttons = nullptr;
 	}
+	if (auxiliaryWnd)
+	{
+		delete auxiliaryWnd;
+		auxiliaryWnd = nullptr;
+	}
 }
 
 void CInterfaceForRole::createInterfaceForRole(TCHAR* roleName)
@@ -114,7 +119,7 @@ void CInterfaceForRole::activateClientView()
 void CInterfaceForRole::activateCashView()
 {
 	pContolPanel->disableButton(ID_STATIC_CASH_BTN);
-	pListView->GetDataFromDatabase(TEXT("select Nickname,Фамилия,Имя,Отчество from dbo.Clients where (Статус = 1)"));
+	pListView->GetDataFromDatabase(TEXT("select Nickname,Фамилия,Имя,Отчество from dbo.Clients where (ClientState = 1)"));
 	pImageWnd->loadNullImage();
 	pImageWnd->showImageWindow();
 	pExtentedInfoAboutSelectedPerson->showExtInfoWnd();
@@ -164,7 +169,12 @@ void CInterfaceForRole::showAllWindow()
 }
 
 
-void CInterfaceForRole::activateCashInWindow()
+void CInterfaceForRole::activateCashInCashOutWindow(UINT btnIdentifier)
+{
+	auxiliaryWnd->createCashInCashOutWindow(currentPerson, btnIdentifier);
+}
+
+void CInterfaceForRole::activateAddClientToDatabaseWindow()
 {
 	auxiliaryWnd->createAddNewClientWnd();
 }
@@ -173,6 +183,23 @@ void CInterfaceForRole::setFocusOnListWindow()
 {
 	pListView->setFocusOnItem();
 }
+
+void CInterfaceForRole::changeClientState(UINT exitOrEntranceBtnIdentifier)
+{
+	currentPerson->changeClientState(exitOrEntranceBtnIdentifier);
+	if (exitOrEntranceBtnIdentifier == ID_EXIT_FROM_CASINO_BTN)
+	{
+		pListView->deleteSelectedPerson();
+		pExtentedInfoAboutSelectedPerson->clearExtInfoWnd();
+		pImageWnd->loadNullImage();
+		buttons->disableButtonsIfNoSelected();
+	}
+	else
+	{
+		pListView->setFocusOnItem();
+	}
+}
+
 LRESULT CALLBACK CInterfaceForRole::ClientAreaProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	extern LPTSTR szClassName;

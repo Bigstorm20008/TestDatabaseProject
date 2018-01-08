@@ -153,6 +153,11 @@ void ListView::setFocusOnItem()
 	SetFocus(listWnd);
 }
 
+void ListView::deleteSelectedPerson()
+{
+	int numSelection = ListView_GetNextItem(this->listWnd, -1, LVNI_ALL | LVNI_SELECTED);   //get index of selection item
+	ListView_DeleteItem(listWnd, numSelection);
+}
 Client* ListView::getSelectedClient(void)
 {
 	

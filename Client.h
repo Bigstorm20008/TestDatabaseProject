@@ -17,7 +17,7 @@ private:
 	SQLTCHAR* imageLocation;          //image location on HD for current client
 	SQLTCHAR* birthDay;               
 	SQLTCHAR* status;
-	SQLTCHAR* clientState;
+	BOOL clientState;
 	int cashInSum;
 	int cashOutSum;
 	int result;
@@ -31,6 +31,7 @@ private:
 	void getCustomerFinancialStatistics();
 	Client& Client::operator=(const Client& client);
 public:
+	SQLTCHAR* getNickname() const;
 	SQLTCHAR* getLastname() const;
 	SQLTCHAR* getFirstname() const;
 	SQLTCHAR* getPatronymic() const;
@@ -39,6 +40,7 @@ public:
 	int getDrop() const;
 	int getResult() const;
 	std::vector<SQLTCHAR*>* getPhoneNumbers() const;
+	void changeClientState(UINT exitOrEntranceBtnIdentifier);
 	void FreeAllField();    //clear all field of Client class
 	SQLTCHAR* getImageLocation();
 	//Function send query with patameter to database and set field of Client class

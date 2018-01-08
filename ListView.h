@@ -27,6 +27,7 @@ public:
 	void InitListView();                                 //initialize listview window
 	void DestroyListView(UINT listViewIdentifier);         //destroy listview window
 	void setFocusOnItem();
+	void deleteSelectedPerson();
 	//void hideListView();                                 //hide listview window
 	//void showListView(void);                             //show listview window
 	ListView(HWND parent, UINT imageIdentifier);

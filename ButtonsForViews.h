@@ -12,6 +12,7 @@ private:
 	HWND cashOutButton;
 	HWND clientOutButton;
 	HWND incomingBtn;
+	HWND clientInButton;
 
 	//ClientView buttons
 	HWND addClientButton;

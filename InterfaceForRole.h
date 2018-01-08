@@ -25,8 +25,10 @@ class CInterfaceForRole
 	void hideAllWindow();
 	static LRESULT CALLBACK ClientAreaProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 public:
+	void changeClientState(UINT exitOrEntranceBtnIdentifier);
 	void setFocusOnListWindow();
-	void activateCashInWindow();
+	void activateAddClientToDatabaseWindow();
+	void activateCashInCashOutWindow(UINT btnIdentifier);
 	void showAllWindow();
 	void activateClientView();
 	void activateCashView();

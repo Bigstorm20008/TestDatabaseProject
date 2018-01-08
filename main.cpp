@@ -156,17 +156,41 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			}
 			//===========================================================
 
+
 			//Messages from cash view
 			//===========================================================
 			case ID_CASH_IN_BTN:
 			{		
-				userInterface->activateCashInWindow();
+				userInterface->activateCashInCashOutWindow(ID_CASH_IN_BTN);
+				break;
+			}
+			case ID_CASH_OUT_BTN:
+			{
+				userInterface->activateCashInCashOutWindow(ID_CASH_OUT_BTN);
+				break;
+			}
+			case ID_EXIT_FROM_CASINO_BTN:
+			{
+				userInterface->changeClientState(ID_EXIT_FROM_CASINO_BTN);
 				break;
 			}
 			//===========================================================
-			case ID_CANCEL_ADD_TO_BASE_BTN:
+
+
+			//Messages from Client View
+			//===========================================================
+			case ID_ADD_CLIENT_TO_DATABASE:
 			{
-				userInterface->showAllWindow();
+				userInterface->activateAddClientToDatabaseWindow();
+				break;
+			}
+			case ID_ENTRANCE_IN_CASINO_BTN:
+			{
+				userInterface->changeClientState(ID_ENTRANCE_IN_CASINO_BTN);
+				break;
+			}
+			case ID_CANCEL_AUXILIARY_BTN:
+			{
 				break;
 			}
 			default:
