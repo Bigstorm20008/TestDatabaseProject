@@ -1,0 +1,137 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{68E710C3-4D70-4E1D-A19F-17738831CDE7}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>TestWindowClass</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="AddClientToDatabaseForm.cpp" />
+    <ClCompile Include="ApplicationViews.cpp" />
+    <ClCompile Include="AutentificationForm.cpp" />
+    <ClCompile Include="AutorisationClass.cpp" />
+    <ClCompile Include="AuxiliaryWindowTemplate.cpp" />
+    <ClCompile Include="Binding.cpp" />
+    <ClCompile Include="ButtonTemplate.cpp" />
+    <ClCompile Include="CashInCashOutForm.cpp" />
+    <ClCompile Include="CasinoState.cpp" />
+    <ClCompile Include="ChangeCurrencyRateForm.cpp" />
+    <ClCompile Include="Client.cpp" />
+    <ClCompile Include="ControlPanel.cpp" />
+    <ClCompile Include="ControlsForViews.cpp" />
+    <ClCompile Include="CurrencyOperation.cpp" />
+    <ClCompile Include="DropDownListTemplate.cpp" />
+    <ClCompile Include="EditControlTemplate.cpp" />
+    <ClCompile Include="Employee.cpp" />
+    <ClCompile Include="ExtendedInfoAboutPerson.cpp" />
+    <ClCompile Include="ImageTemplate.cpp" />
+    <ClCompile Include="ListBoxTemplate.cpp" />
+    <ClCompile Include="ListView.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Person.cpp" />
+    <ClCompile Include="SqlFramework.cpp" />
+    <ClCompile Include="UserInterface.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="AddClientToDatabaseForm.h" />
+    <ClInclude Include="ApplicationViews.h" />
+    <ClInclude Include="AutentificationForm.h" />
+    <ClInclude Include="AutorisationClass.h" />
+    <ClInclude Include="AuxiliaryWindowTemplate.h" />
+    <ClInclude Include="Binding.h" />
+    <ClInclude Include="ButtonTemplate.h" />
+    <ClInclude Include="CashInCashOutForm.h" />
+    <ClInclude Include="CasinoState.h" />
+    <ClInclude Include="ChangeCurrencyRateForm.h" />
+    <ClInclude Include="Client.h" />
+    <ClInclude Include="Constatnts.h" />
+    <ClInclude Include="ControlPanel.h" />
+    <ClInclude Include="ControlsForViews.h" />
+    <ClInclude Include="CurrencyOperation.h" />
+    <ClInclude Include="DropDownListTemplate.h" />
+    <ClInclude Include="EditControlTemplate.h" />
+    <ClInclude Include="Employee.h" />
+    <ClInclude Include="ExtendedInfoAboutPerson.h" />
+    <ClInclude Include="ImageTemplate.h" />
+    <ClInclude Include="ListBoxTemplate.h" />
+    <ClInclude Include="ListView.h" />
+    <ClInclude Include="Person.h" />
+    <ClInclude Include="SqlFramework.h" />
+    <ClInclude Include="UserInterface.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
