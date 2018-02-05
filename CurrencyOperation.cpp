@@ -37,7 +37,7 @@ void CurrencyOperation::getCurrencyRates()
 
 void CurrencyOperation::getDateInCasino()
 {
-	TCHAR* sqlCommand = TEXT("SELECT [Date] FROM [dbo].[DateInCasino]");
+	TCHAR* sqlCommand = TEXT("SELECT FORMAT([DateInCasino],'dd/MM/yyyy') FROM [dbo].[CasinoStatus] WHERE CasinoState = 'True'");
 	SQLHANDLE statementHandle = m_sqlConnection->SendQueryToDatabase(sqlCommand);
 	Binding* pBinding = m_sqlConnection->GetBinding();
 	while (SQLFetch(statementHandle) != SQL_NO_DATA)

@@ -30,6 +30,7 @@ public:
 	Binding* GetNextBinding(void);
 	//this function free all binding after using data. its called from CSqlFramework class.Other class must not call this function.
 	void FreeBinding(void);
+	SQLLEN getStrLenOrInd();
 	Binding();
 	~Binding();
 };

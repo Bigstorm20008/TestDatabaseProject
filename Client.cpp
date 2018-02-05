@@ -13,6 +13,7 @@ Client::Client(CSqlFramework* sqlConnection)
 	m_birthDay = nullptr;
 	m_phoneNumbers = nullptr;
 	m_lastVisit = nullptr;
+	m_registrationDate = nullptr;
 }
 
 
@@ -68,6 +69,11 @@ void Client::FreeAllField()
 	{
 		delete[]m_lastVisit;
 		m_lastVisit = nullptr;
+	}
+	if (m_registrationDate)
+	{
+		delete[]m_registrationDate;
+		m_registrationDate = nullptr;
 	}
 }
 

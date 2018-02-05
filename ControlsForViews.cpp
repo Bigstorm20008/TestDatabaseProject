@@ -104,7 +104,7 @@ void ControlsForViews::createControlsForClientsView()
 	destroyAllControls();
 	int xPos = offsetsBetweenWindow;
 	int yPos = offsetsBetweenWindow;
-	int btnWidth = 125;
+	int btnWidth = 135;
 	int btnHeight = 25;
 
 	m_entranceToCasinoButton = CreateWindow(TEXT("BUTTON"),
@@ -116,6 +116,17 @@ void ControlsForViews::createControlsForClientsView()
 		                                    (HMENU)ID_ENTRANCE_TO_CASINO_BUTTON,
 		                                    reinterpret_cast<HINSTANCE>(GetWindowLong(NULL, GWLP_HINSTANCE)),
 		                                    NULL);
+
+	yPos += btnHeight + offsetsBetweenWindow;
+	CreateWindow(TEXT("BUTTON"),
+		         TEXT("Добавить клиента"),
+		         WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,
+		         xPos, yPos,
+		         btnWidth, btnHeight,
+		         m_parentOfControl,
+		         (HMENU)ID_ADD_CLIENT_TO_DATABASE_BTN,
+		         reinterpret_cast<HINSTANCE>(GetWindowLong(NULL, GWLP_HINSTANCE)),
+		         NULL);
 }
 
 void ControlsForViews::enableButtonsIfSelectedPerson()

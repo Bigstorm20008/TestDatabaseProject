@@ -130,6 +130,11 @@ SQLINTEGER Binding::getIntegerData()
 	return itegerData;
 }
 
+SQLLEN Binding::getStrLenOrInd()
+{
+	return StrLen_or_Ind;
+}
+
 void Binding::FreeBinding(void)
 {
 	Binding* pTempBinding = this;

@@ -8,6 +8,7 @@ private:
 	SQLTCHAR* m_nickname;               
 	SQLTCHAR* m_status;
 	TCHAR* m_lastVisit;
+	TCHAR* m_registrationDate;
 	BOOL m_clientState;
 	long long m_cashInSum;
 	long long m_cashOutSum;

@@ -1,8 +1,9 @@
 #include "ControlPanel.h"
 
 
-ControlPanel::ControlPanel(HWND parentOfControlPanel, TCHAR* roleName)
+ControlPanel::ControlPanel(HWND parentOfControlPanel, TCHAR* roleName, BOOL casinoState)
 {
+	m_casinoState = casinoState;
 	m_parentOfControlPanel = parentOfControlPanel;
 	m_CashDeskButton = nullptr;
 	m_ClentsButton = nullptr;
@@ -71,7 +72,23 @@ void ControlPanel::createButtonsForRole(TCHAR* roleName)
 {
 	if (_tcscmp(roleName, TEXT("CashDesk")) == 0)
 	{
-		createButtonsForCashier();
+		if (m_casinoState == FALSE)
+		{
+			CreateWindow(TEXT("BUTTON"),
+				TEXT("Открыть казино"),
+				WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,
+				5,
+				5,
+				120, 40,
+				m_controlPanelWnd,
+				(HMENU)ID_OPEN_CASINO_BTN,
+				(HINSTANCE)GetWindowLong(NULL, GWLP_HINSTANCE),
+				NULL);
+		}
+		else
+		{
+			createButtonsForCashier();
+		}
 	}
 }
 
@@ -139,6 +156,7 @@ void ControlPanel::disableButtonOnControlPanel(UINT butonIdentifier)
 			}
 			break;
 		}
+		
 		case ID_CLIENT_BTN:
 		{
 			m_ClentsButton->disableButton();
@@ -225,6 +243,11 @@ LRESULT ControlPanel::RealControlPanelProc(HWND hWnd, UINT msg, WPARAM wParam, L
 				case ID_EMPLOYEE_BTN:
 				{
 					disableButtonOnControlPanel(ID_EMPLOYEE_BTN);
+					SendMessage(m_parentOfControlPanel, WM_COMMAND, ID_EMPLOYEE_BTN, 0);
+					break;
+				}
+				case ID_OPEN_CASINO_BTN:
+				{
 					SendMessage(m_parentOfControlPanel, WM_COMMAND, ID_EMPLOYEE_BTN, 0);
 					break;
 				}

@@ -6,11 +6,12 @@
 class ControlPanel
 {
 public:
-	ControlPanel(HWND parentOfControlPanel, TCHAR* roleName);
+	ControlPanel(HWND parentOfControlPanel, TCHAR* roleName, BOOL casinoState);
 	~ControlPanel();
 	
 
 private:
+	BOOL m_casinoState;
 	HWND m_parentOfControlPanel;
 	HWND m_controlPanelWnd;
 	ButtonTemplate* m_CashDeskButton;

@@ -9,6 +9,7 @@
 #include "ControlPanel.h"
 #include "ApplicationViews.h"
 #include "ControlsForViews.h"
+#include "CasinoState.h"
 
 class UserInterface
 {
@@ -31,6 +32,7 @@ public:
 private:
 	HWND m_mainApplicationWindow;
 	TCHAR* m_dateInCasino;
+	CasinoState* m_casinoState;
 
 	CSqlFramework* m_sqlConection;
 	AutentificationForm* m_autentification;
@@ -45,6 +47,5 @@ private:
 
 	void createUserInterfaceForRole(TCHAR* roleName);
 	void createControlsAreaForViews();
-	void getDateInCasino();
 };
 

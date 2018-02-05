@@ -13,6 +13,7 @@
 #define ID_CLIENT_BTN 1000
 #define ID_CASH_BTN 1001
 #define ID_EMPLOYEE_BTN 1002
+#define ID_OPEN_CASINO_BTN 1003
 
 //For AuxiliaryTemplate
 #define ID_CANCEL_AUXILIARY_BTN 1500
@@ -35,6 +36,7 @@
 #define ID_ENTRANCE_TO_CASINO_BUTTON     1802
 #define ID_CASH_IN_BUTTON                1803
 #define ID_CASH_OUT_BUTTON               1804
+#define ID_ADD_CLIENT_TO_DATABASE_BTN    1805
 
 //For changeCurrencyRateForm
 #define ID_CHANGE_CURRENCY_RATE          1900

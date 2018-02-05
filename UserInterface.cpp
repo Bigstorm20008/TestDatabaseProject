@@ -13,6 +13,7 @@ UserInterface::UserInterface(HWND mainApplicationWindow)
 	m_cashInCashOutForm = nullptr;
 	m_changeCurrencyRateForm = nullptr;
 	m_dateInCasino = nullptr;
+	m_casinoState = nullptr;
 }
 
 
@@ -61,8 +62,12 @@ UserInterface::~UserInterface()
 	}
 	if (m_dateInCasino)
 	{
-		delete[]m_dateInCasino;
 		m_dateInCasino = nullptr;
+	}
+	if (m_casinoState)
+	{
+		delete m_casinoState;
+		m_casinoState = nullptr;
 	}
 }
 
@@ -82,8 +87,10 @@ void UserInterface::autorisationInDatabase()
 
 	AutorisationClass* autorisation = new AutorisationClass(m_sqlConection);
 	TCHAR* roleName = autorisation->GetRoleOfCurrentUser();
-	m_controlPanel = new ControlPanel(m_mainApplicationWindow, roleName); 
-	getDateInCasino();
+	
+	m_casinoState = new CasinoState(m_sqlConection);
+	m_dateInCasino = m_casinoState->getDateInCasino();
+	m_controlPanel = new ControlPanel(m_mainApplicationWindow, roleName, m_casinoState->getCasinoState());
 	delete autorisation;
 	autorisation = nullptr;
 }
@@ -231,25 +238,5 @@ void UserInterface::changeClientState(UINT exitOrEntranceBtnIdentifier)
 	}
 }
 
-void UserInterface::getDateInCasino()
-{
-	TCHAR* sqlCommand = TEXT("SELECT FORMAT([Date], 'dd/MM/yyyy') FROM [dbo].[DateInCasino]");
-	SQLHANDLE statementHandle = m_sqlConection->SendQueryToDatabase(sqlCommand);
-	Binding* pBinding = m_sqlConection->GetBinding();
-	while (SQLFetch(statementHandle) != SQL_NO_DATA)
-	{
-
-		Binding* tempBinding = pBinding;
-		while (tempBinding)
-		{
-			size_t len = _tcslen(tempBinding->GetDescription()) + 1;
-			m_dateInCasino = new TCHAR[len];
-			memset(m_dateInCasino, 0, len*sizeof(TCHAR));
-			_tcscpy_s(m_dateInCasino, len, tempBinding->GetDescription());
-			tempBinding = tempBinding->GetNextBinding(); //set pointer to next element
-		}
-	}
-	m_sqlConection->FreeBinding(statementHandle);
-}
 
 
